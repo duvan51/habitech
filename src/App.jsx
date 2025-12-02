@@ -11,7 +11,7 @@ import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import Nosotros from "./pages/Nosotros";
 import Hogar from "./pages/Hogar";
-import Industrial from "./pages/Industrial";
+import Industrial from "./pages/industrial";
 import Remodelaciones from "./pages/Remodelaciones";
 
 import Terrenos from "./pages/Terrenos";
