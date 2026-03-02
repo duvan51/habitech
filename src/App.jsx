@@ -3,34 +3,51 @@ import defaultConfig from "./hooks/defaultConfig";
 import useConfig from "./hooks/useConfig";
 import { useDataSdk } from "./hooks/useDataSdk";
 
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import { Routes, Route, Navigate } from "react-router-dom"
 
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 
+// Original Pages (Constructor)
 import Home from "./pages/Home";
 import Nosotros from "./pages/Nosotros";
 import Hogar from "./pages/Hogar";
 import Industrial from "./pages/industrial";
 import Remodelaciones from "./pages/Remodelaciones";
-
 import Terrenos from "./pages/Terrenos";
 import TerrenoID from "./pages/TerrenoDetalles";
 
+// New Marketplace & Auth Pages
+import Marketplace from "./pages/Marketplace";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import UserDashboard from "./pages/dashboard/UserDashboard";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import { useAuth } from "./hooks/AuthContext";
+
+const ProtectedRoute = ({ children, adminOnly = false }) => {
+  const { user, profile, loading } = useAuth();
+
+  if (loading) return <div className="flex justify-center items-center h-screen italic">Cargando...</div>;
+  if (!user) return <Navigate to="/login" />;
+  if (adminOnly && profile?.role !== 'admin') return <Navigate to="/" />;
+
+  return children;
+};
 
 export default function App() {
   const config = useConfig();
-  useDataSdk(); // solo inicializa el SDK global
+  useDataSdk();
 
   useEffect(() => {
-    // Si existe elementSdk, escucha cambios remotos de configuración
     if (!window || !window.elementSdk) return;
 
     window.elementSdk.init &&
       window.elementSdk.init({
         defaultConfig,
         onConfigChange: async (newCfg) => {
-          setConfig((prev) => ({ ...defaultConfig, ...prev, ...newCfg }));
+          // Nota: setConfig no está definido aquí directamente, 
+          // pero useConfig maneja el estado internamente si se le pasa el SDK.
         }
       });
   }, []);
@@ -40,72 +57,36 @@ export default function App() {
       <Header config={config} />
       <main className="flex-1 w-full">
         <Routes>
-        <Route
-          path="/"
-          element={
-            <div className="flex flex-col gap-8">
-              <Home />
-            </div>
-          }
-        />
-        <Route
-          path="/Terrenos"
-          element={
-            <div className="flex flex-col gap-8">
-              <Nosotros />
-            </div>
-          }
-        />
-        <Route
-          path="/nosotros"
-          element={
-            <div className="flex flex-col gap-8">
-              <Nosotros />
-            </div>
-          }
-        />
-        <Route
-          path="/hogar"
-          element={
-            <div className="flex flex-col gap-8">
-              <Hogar/>
-            </div>
-          }
-        />
-        <Route
-          path="/Industrial"
-          element={
-            <div className="flex flex-col gap-8">
-              <Industrial />
-            </div>
-          }
-        />
-        <Route
-          path="/remodelaciones"
-          element={
-            <div className="flex flex-col gap-8">
-              <Remodelaciones />
-            </div>
-          }
-        />
-         <Route
-          path="/terrenoVentas"
-          element={
-            <div className="flex flex-col gap-8">
-              <Terrenos />
-            </div>
-          }
-        />
-        <Route
-          path="/terrenoVentas/:id"
-          element={
-            <div className="flex flex-col gap-8">
-              <TerrenoID />
-            </div>
-          }
-        />
+          {/* Marketplace as Root */}
+          <Route path="/" element={<Marketplace />} />
+
+          {/* Auth Routes */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+
+          {/* Dashboards */}
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <UserDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin" element={
+            <ProtectedRoute adminOnly>
+              <AdminDashboard />
+            </ProtectedRoute>
+          } />
+
+          {/* Original Habitech Constructor Section */}
+          <Route path="/constructora" element={<Home />} />
+          <Route path="/nosotros" element={<Nosotros />} />
+          <Route path="/hogar" element={<Hogar />} />
+          <Route path="/industrial" element={<Industrial />} />
+          <Route path="/remodelaciones" element={<Remodelaciones />} />
+
+          {/* Legacy Listings (from previous Habitech logic) */}
+          <Route path="/terrenoVentas" element={<Terrenos />} />
+          <Route path="/terrenoVentas/:id" element={<TerrenoID />} />
         </Routes>
-        
       </main>
       <Footer config={config} />
     </div>

@@ -1,101 +1,82 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/AuthContext";
+import { signOut } from "../api/auth";
 
 export default function Header({ config }) {
+  const { user, profile } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/");
+  };
+
   return (
     <header
       className="w-full border-b-4"
       style={{ borderColor: config.primary_action_color }}
     >
       <nav className="w-full" style={{ backgroundColor: config.surface_color }}>
-        <div className="max-w-6xl mx-auto px-4 py-5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-3">
             <div
               className="rounded p-2 flex items-center justify-center"
               style={{ backgroundColor: config.primary_action_color }}
             >
-              <svg
-                width="32"
-                height="32"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <rect x="3" y="8" width="6" height="11" rx="1" fill="#ffffff" />
-                <rect x="9" y="5" width="6" height="14" rx="1" fill="#ffffff" />
-                <rect
-                  x="15"
-                  y="10"
-                  width="6"
-                  height="9"
-                  rx="1"
-                  fill="#ffffff"
-                />
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
               </svg>
             </div>
             <div className="flex flex-col">
-              <span
-                id="brand-name"
-                className="text-white font-bold tracking-wide text-xl"
-              >
+              <span className="text-white font-bold tracking-wide text-xl leading-tight">
                 HABITECH
               </span>
-              <span id="brand-tagline" className="text-white text-sm">
-                Constructora de confianza
+              <span className="text-white text-xs opacity-80">
+                Marketplace & Constructora
               </span>
             </div>
+          </Link>
+
+          <div className="hidden lg:flex gap-6 text-sm items-center">
+            <Link to="/" className="text-white hover:text-orange-300 font-medium">Marketplace</Link>
+            <Link to="/constructora" className="text-white hover:text-orange-300 font-medium">Constructora</Link>
+            <Link to="/nosotros" className="text-white hover:text-orange-300 font-medium">Nosotros</Link>
           </div>
 
-          <div className="hidden md:flex gap-8 text-base">
-            <Link
-              to="/hogar"
-              className="text-white hover:text-orange-300 font-medium"
-              style={{  }}
-            >
-              Hogar
-            </Link>
-            
-            <Link
-              to="/Industrial"
-              className="text-white hover:text-orange-300 font-medium"
-              style={{  }}
-            >
-              Industrial
-            </Link>
-            <Link
-              to="/remodelaciones"
-              className="text-white hover:text-orange-300 font-medium"
-              style={{  }}
-            >
-              Remodelaciones
-            </Link>
-            <Link
-              to="/terrenoVentas"
-              className="text-white hover:text-orange-300 font-medium"
-              style={{  }}
-            >
-              Terrenos
-            </Link>
-            <Link
-              to="/nosotros"
-              className="text-white hover:text-orange-300 font-medium"
-              style={{  }}
-            >
-              Nosotros
-            </Link>
-            
+          <div className="flex items-center gap-4">
+            {user ? (
+              <>
+                <Link
+                  to={profile?.role === 'admin' ? "/admin" : "/dashboard"}
+                  className="text-white hover:text-orange-300 font-medium text-sm"
+                >
+                  {profile?.role === 'admin' ? "Panel Admin" : "Mi Dashboard"}
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="px-4 py-2 rounded text-sm font-bold border border-white text-white hover:bg-white hover:text-gray-900 transition-all"
+                >
+                  Salir
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="text-white hover:text-orange-300 font-medium text-sm">Entrar</Link>
+                <Link
+                  to="/register"
+                  className="px-5 py-2 rounded font-bold shadow-lg text-sm"
+                  style={{
+                    backgroundColor: config.primary_action_color,
+                    color: "#ffffff",
+                  }}
+                >
+                  Regístrate
+                </Link>
+              </>
+            )}
           </div>
-
-          <a
-            href="#contacto"
-            id="nav-cta"
-            className="hidden md:inline-flex px-5 py-2.5 rounded font-bold shadow-lg"
-            style={{
-              backgroundColor: config.primary_action_color,
-              color: "#ffffff",
-            }}
-          >
-            Solicitar presupuesto
-          </a>
         </div>
       </nav>
     </header>

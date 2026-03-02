@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom"; 
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { getPropiedades } from "../api/user";
 
 export default function VentaTerrenos() {
   const [filtroCiudad, setFiltroCiudad] = useState("todos");
@@ -7,6 +8,26 @@ export default function VentaTerrenos() {
   const [filtroCredito, setFiltroCredito] = useState("todos");
   const [filtroTamano, setFiltroTamano] = useState("todos");
   const [filtroPrecio, setFiltroPrecio] = useState("todos");
+
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getPropiedades()
+      .then((res) => {
+        setData(res);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error al obtener propiedades:", error);
+        setLoading(false);
+      });
+  }, []);
+
+
+
+
+
 
   const terrenos = [
     {
