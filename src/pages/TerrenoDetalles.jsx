@@ -11,20 +11,38 @@ export default function TerrenoDetalle() {
   useEffect(() => {
     const fetchListing = async () => {
       try {
+        let finalData = null;
+
+        // Primero intentamos con el join a profiles
         const { data, error } = await supabase
           .from('listings')
           .select('*, profiles(*)')
           .eq('id', id)
           .single();
 
-        if (error) throw error;
-        setListing(data);
+        if (error) {
+          console.error("Error con profiles, intentando sin join:", error);
+          const { data: fallbackData, error: fallbackError } = await supabase
+            .from('listings')
+            .select('*')
+            .eq('id', id)
+            .single();
+
+          if (fallbackError) throw fallbackError;
+          finalData = fallbackData;
+        } else {
+          finalData = data;
+        }
+
+        setListing(finalData);
 
         // Incrementar vistas
-        await supabase
-          .from('listings')
-          .update({ views: (data.views || 0) + 1 })
-          .eq('id', id);
+        if (finalData) {
+          await supabase
+            .from('listings')
+            .update({ views: (finalData.views || 0) + 1 })
+            .eq('id', id);
+        }
 
       } catch (err) {
         console.error("Error fetching listing:", err);
