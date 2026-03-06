@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../hooks/AuthContext';
 import { Link } from 'react-router-dom';
-import CreateListingModal from './CreateListingModal';
+import ListingModal from './ListingModal';
 
 export default function UserDashboard() {
     const { user, profile, supabase } = useAuth();
     const [myListings, setMyListings] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedListing, setSelectedListing] = useState(null);
 
     useEffect(() => {
         if (user) {
@@ -26,6 +27,31 @@ export default function UserDashboard() {
             setMyListings(data);
         }
         setLoading(false);
+    };
+
+    const handleEdit = (listing) => {
+        setSelectedListing(listing);
+        setIsModalOpen(true);
+    };
+
+    const handleCreate = () => {
+        setSelectedListing(null);
+        setIsModalOpen(true);
+    };
+
+    const handleDelete = async (id) => {
+        if (window.confirm('¿Estás seguro de que quieres eliminar esta publicación?')) {
+            const { error } = await supabase
+                .from('listings')
+                .delete()
+                .eq('id', id);
+
+            if (error) {
+                alert('Error al eliminar: ' + error.message);
+            } else {
+                fetchMyListings();
+            }
+        }
     };
 
     // Resumen de métricas
@@ -49,7 +75,7 @@ export default function UserDashboard() {
                 <div className="mt-4 flex md:mt-0 md:ml-4">
                     <button
                         type="button"
-                        onClick={() => setIsModalOpen(true)}
+                        onClick={handleCreate}
                         className="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors"
                     >
                         <span className="mr-2">+</span> Nueva Publicación
@@ -119,11 +145,17 @@ export default function UserDashboard() {
                                             </div>
                                         </div>
                                         <div className="ml-5 flex-shrink-0 flex space-x-2">
-                                            <button className="text-orange-600 hover:text-orange-900 text-sm font-medium">
+                                            <button
+                                                onClick={() => handleEdit(listing)}
+                                                className="text-orange-600 hover:text-orange-900 text-sm font-medium"
+                                            >
                                                 Editar
                                             </button>
                                             <span className="text-gray-200">|</span>
-                                            <button className="text-red-400 hover:text-red-700 text-sm font-medium">
+                                            <button
+                                                onClick={() => handleDelete(listing.id)}
+                                                className="text-red-400 hover:text-red-700 text-sm font-medium"
+                                            >
                                                 Eliminar
                                             </button>
                                         </div>
@@ -135,12 +167,16 @@ export default function UserDashboard() {
                 )}
             </div>
 
-            <CreateListingModal
+            <ListingModal
                 isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
+                onClose={() => {
+                    setIsModalOpen(false);
+                    setSelectedListing(null);
+                }}
                 user={user}
                 supabase={supabase}
-                onCreated={fetchMyListings}
+                onSaved={fetchMyListings}
+                listing={selectedListing}
             />
         </div>
     );

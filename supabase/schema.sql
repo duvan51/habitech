@@ -25,9 +25,19 @@ CREATE TABLE IF NOT EXISTS public.listings (
   images TEXT[],
   status TEXT DEFAULT 'active' CHECK (status IN ('active', 'sold', 'pending')),
   location TEXT,
+  area TEXT,
+  video_url TEXT,
+  latitude NUMERIC,
+  longitude NUMERIC,
   views INTEGER DEFAULT 0,
   clicks INTEGER DEFAULT 0
 );
+
+-- Migration for existing tables
+ALTER TABLE public.listings ADD COLUMN IF NOT EXISTS area TEXT;
+ALTER TABLE public.listings ADD COLUMN IF NOT EXISTS video_url TEXT;
+ALTER TABLE public.listings ADD COLUMN IF NOT EXISTS latitude NUMERIC;
+ALTER TABLE public.listings ADD COLUMN IF NOT EXISTS longitude NUMERIC;
 
 -- Active RLS on listings
 ALTER TABLE public.listings ENABLE ROW LEVEL SECURITY;
