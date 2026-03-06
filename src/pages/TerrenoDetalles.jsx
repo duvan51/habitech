@@ -19,6 +19,13 @@ export default function TerrenoDetalle() {
 
         if (error) throw error;
         setListing(data);
+
+        // Incrementar vistas
+        await supabase
+          .from('listings')
+          .update({ views: (data.views || 0) + 1 })
+          .eq('id', id);
+
       } catch (err) {
         console.error("Error fetching listing:", err);
         setError(err.message);
@@ -30,111 +37,138 @@ export default function TerrenoDetalle() {
     if (id) fetchListing();
   }, [id]);
 
-  if (loading) return <div className="flex justify-center items-center h-screen italic">Cargando detalles...</div>;
+  if (loading) return (
+    <div className="flex flex-col justify-center items-center h-screen bg-gray-50">
+      <div className="animate-pulse flex flex-col items-center">
+        <div className="h-12 w-12 bg-orange-200 rounded-full mb-4"></div>
+        <div className="h-4 w-48 bg-gray-200 rounded"></div>
+      </div>
+    </div>
+  );
+
   if (error || !listing) return (
-    <div className="text-center py-20">
-      <p className="text-red-500 mb-4 font-bold text-xl">Error: {error || "Publicación no encontrada"}</p>
-      <Link to="/" className="text-blue-600 hover:underline">Volver al Marketplace</Link>
+    <div className="text-center py-20 bg-gray-50 min-h-screen flex flex-col items-center justify-center">
+      <div className="bg-white p-8 rounded-3xl shadow-xl max-w-md border border-gray-100">
+        <div className="text-red-500 text-5xl mb-4">⚠️</div>
+        <p className="text-gray-900 mb-6 font-bold text-2xl">Vaya, no lo encontramos</p>
+        <p className="text-gray-500 mb-8">{error || "Esta propiedad ya no está disponible o el enlace es incorrecto."}</p>
+        <Link to="/" className="inline-block bg-orange-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-orange-100 hover:bg-orange-700 transition-all">
+          Volver al Marketplace
+        </Link>
+      </div>
     </div>
   );
 
   return (
-    <div className="w-full max-w-5xl mx-auto p-6">
-      {/* TÍTULO */}
-      <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 text-center capitalize">
-        {listing.title}
-      </h1>
+    <div className="bg-gray-50 min-h-screen pb-20">
+      {/* HEADER DETALLE - STICKY EN MOBILE? */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
+        <nav className="flex mb-8" aria-label="Breadcrumb">
+          <ol className="flex items-center space-x-2 text-sm text-gray-400">
+            <li><Link to="/" className="hover:text-orange-600">Marketplace</Link></li>
+            <li><svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" /></svg></li>
+            <li className="text-gray-600 font-medium truncate max-w-[200px]">{listing.title}</li>
+          </ol>
+        </nav>
+      </div>
 
-      {/* PRECIO */}
-      <p className="text-3xl text-green-600 font-extrabold text-center mb-10">
-        ${listing.price?.toLocaleString()} COP
-      </p>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-3 gap-10">
 
-      {/* GALERÍA DE IMÁGENES */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-10">
-        {listing.images && listing.images.length > 0 ? (
-          listing.images.map((img, i) => (
-            <img
-              key={i}
-              src={img}
-              alt="foto terreno"
-              className="w-full h-52 object-cover rounded-xl shadow transition-transform hover:scale-105"
-            />
-          ))
-        ) : (
-          <div className="col-span-3 bg-gray-100 h-64 flex items-center justify-center rounded-xl text-gray-400 font-medium italic">
-            Sin imágenes disponibles
+        {/* COLUMNA IZQUIERDA: IMÁGENES Y DESCRIPCIÓN */}
+        <div className="lg:col-span-2 space-y-8">
+
+          {/* GALERÍA PRINCIPAL */}
+          <div className="bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 p-2">
+            <div className="aspect-video bg-gray-100 rounded-2xl overflow-hidden">
+              {listing.images && listing.images[0] ? (
+                <img
+                  src={listing.images[0]}
+                  alt={listing.title}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full text-gray-300 italic">
+                  <svg className="w-20 h-20 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                  Sin imágenes de galería
+                </div>
+              )}
+            </div>
           </div>
-        )}
-      </div>
 
-      {/* DESCRIPCIÓN */}
-      <div className="mb-14 bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-        <h2 className="text-2xl font-semibold mb-3 text-gray-800 border-b pb-2">
-          Descripción detallada
-        </h2>
-        <p className="text-gray-700 leading-relaxed whitespace-pre-line text-lg">
-          {listing.description}
-        </p>
-      </div>
+          {/* CUERPO DE LA PUBLICACIÓN */}
+          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 md:p-10">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+              <div>
+                <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-black uppercase tracking-widest mb-3 inline-block">
+                  {listing.type}
+                </span>
+                <h1 className="text-3xl md:text-4xl font-black text-gray-900 capitalize">
+                  {listing.title}
+                </h1>
+                <p className="text-gray-500 mt-2 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                  {listing.location}
+                </p>
+              </div>
+              <div className="text-left md:text-right">
+                <span className="text-sm text-gray-400 font-bold uppercase block">Precio total</span>
+                <p className="text-4xl font-black text-orange-600">
+                  ${listing.price?.toLocaleString()}
+                </p>
+              </div>
+            </div>
 
-      {/* CARACTERÍSTICAS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
-        <div className="bg-gray-100 p-8 rounded-2xl shadow-sm">
-          <h3 className="text-xl font-bold mb-4 text-gray-900 flex items-center gap-2">
-            <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            Información General
-          </h3>
-
-          <ul className="text-gray-700 space-y-3 text-lg">
-            <li className="flex justify-between border-b border-gray-200 pb-1">
-              <span className="font-semibold text-gray-600">Ubicación:</span>
-              <span>{listing.location}</span>
-            </li>
-            <li className="flex justify-between border-b border-gray-200 pb-1">
-              <span className="font-semibold text-gray-600">Tipo:</span>
-              <span className="capitalize">{listing.type}</span>
-            </li>
-            <li className="flex justify-between">
-              <span className="font-semibold text-gray-600">Estado:</span>
-              <span className="capitalize px-2 bg-green-100 text-green-800 rounded-full text-sm font-bold flex items-center">
-                {listing.status}
-              </span>
-            </li>
-          </ul>
-        </div>
-
-        {/* VENDEDOR */}
-        <div className="bg-white border-2 border-orange-50 p-8 rounded-2xl shadow-lg relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-orange-50 rounded-bl-full -mr-10 -mt-10 opacity-50"></div>
-
-          <h3 className="text-xl font-bold mb-4 text-gray-900 flex items-center gap-2">
-            <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-            </svg>
-            Contacto del Vendedor
-          </h3>
-
-          <p className="text-gray-900 font-bold text-xl mb-6">
-            {listing.profiles?.full_name || "Usuario verificado"}
-          </p>
-
-          <div className="space-y-4">
-            <a
-              href={`https://wa.me/573000000000`} // Aquí podrías añadir el teléfono al perfil de usuario en DB
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center justify-center gap-2 w-full bg-green-600 text-white py-3 rounded-xl font-bold shadow-green-200 shadow-lg hover:bg-green-700 transition-all active:scale-95"
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.022-.047-.078-.133-.232-.211-.154-.078-.912-.451-1.054-.502-.142-.05-.245-.078-.348.078-.103.156-.399.502-.489.605-.09.103-.18.115-.334.037-.155-.078-.652-.241-1.241-.767-.459-.41-1.037-.916-1.127-1.071-.09-.155-.01-.239.068-.317.071-.071.156-.18.234-.27.08-.09.105-.153.159-.255.053-.102.026-.192-.013-.27-.04-.078-.35-.845-.48-1.156-.126-.305-.255-.264-.348-.269-.09-.004-.192-.005-.294-.005-.102 0-.27.038-.41.192-.141.156-.54.528-.54 1.288 0 .76.552 1.494.629 1.6.078.106 1.087 1.66 2.632 2.33.368.159.654.254.877.325.37.118.706.101.972.062.297-.044.912-.372 1.04-.733.128-.36.128-.67.09-.734-.04-.064-.105-.102-.231-.18zm-5.472 7.618c-2.484 0-4.832-.969-6.606-2.74-1.748-1.748-2.711-4.068-2.711-6.53 0-2.484.969-4.832 2.74-6.606 1.748-1.748 4.068-2.711 6.53-2.711 2.484 0 4.832.969 6.606 2.74C20.309 6.901 21.272 9.221 21.272 11.703c0 2.484-.969 4.832-2.74 6.606-1.748 1.748-4.068 2.711-6.53 2.711zM12 0C5.383 0 0 5.383 0 12c0 6.617 5.383 12 12 12s12-5.383 12-12c0-6.617-5.383-12-12-12z" /></svg>
-              WhatsApp del Vendedor
-            </a>
+            <div className="border-t border-gray-100 pt-8">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Sobre esta propiedad</h2>
+              <p className="text-gray-600 leading-relaxed text-lg whitespace-pre-line">
+                {listing.description}
+              </p>
+            </div>
           </div>
         </div>
-      </div>
 
+        {/* COLUMNA DERECHA: CONTACTO Y STATS */}
+        <div className="space-y-6">
+          <div className="bg-white rounded-3xl shadow-xl border border-gray-50 p-8 sticky top-8">
+            <div className="flex items-center gap-4 mb-8 p-4 bg-gray-50 rounded-2xl">
+              <div className="h-12 w-12 bg-orange-600 rounded-xl flex items-center justify-center text-white font-black text-xl">
+                {listing.profiles?.full_name?.charAt(0) || 'H'}
+              </div>
+              <div>
+                <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">Vendedor experto</p>
+                <p className="text-lg font-bold text-gray-900">{listing.profiles?.full_name || "Asesor Habitech"}</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <a
+                href={`https://wa.me/573000000000`}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center justify-center gap-3 w-full bg-green-600 text-white py-4 rounded-2xl font-black shadow-lg shadow-green-100 hover:bg-green-700 transition-all active:scale-95"
+              >
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.022-.047-.078-.133-.232-.211-.154-.078-.912-.451-1.054-.502-.142-.05-.245-.078-.348.078-.103.156-.399.502-.489.605-.09.103-.18.115-.334.037-.155-.078-.652-.241-1.241-.767-.459-.41-1.037-.916-1.127-1.071-.09-.155-.01-.239.068-.317.071-.071.156-.18.234-.27.08-.09.105-.153.159-.255.053-.102.026-.192-.013-.27-.04-.078-.35-.845-.48-1.156-.126-.305-.255-.264-.348-.269-.09-.004-.192-.005-.294-.005-.102 0-.27.038-.41.192-.141.156-.54.528-.54 1.288 0 .76.552 1.494.629 1.6.078.106 1.087 1.66 2.632 2.33.368.159.654.254.877.325.37.118.706.101.972.062.297-.044.912-.372 1.04-.733.128-.36.128-.67.09-.734-.04-.064-.105-.102-.231-.18zm-5.472 7.618c-2.484 0-4.832-.969-6.606-2.74-1.748-1.748-2.711-4.068-2.711-6.53 0-2.484.969-4.832 2.74-6.606 1.748-1.748 4.068-2.711 6.53-2.711 2.484 0 4.832.969 6.606 2.74C20.309 6.901 21.272 9.221 21.272 11.703c0 2.484-.969 4.832-2.74 6.606-1.748 1.748-4.068 2.711-6.53 2.711zM12 0C5.383 0 0 5.383 0 12c0 6.617 5.383 12 12 12s12-5.383 12-12c0-6.617-5.383-12-12-12z" /></svg>
+                Contactar por WhatsApp
+              </a>
+              <button className="w-full bg-gray-900 text-white py-4 rounded-2xl font-bold hover:bg-black transition-all">
+                Solicitar Llamada
+              </button>
+            </div>
+
+            <div className="mt-10 pt-10 border-t border-gray-100 grid grid-cols-2 gap-4 text-center">
+              <div>
+                <p className="text-2xl font-black text-gray-900">{listing.views || 0}</p>
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Vistas</p>
+              </div>
+              <div>
+                <p className="text-2xl font-black text-gray-900">{listing.clicks || 0}</p>
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Interesados</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
+

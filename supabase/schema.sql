@@ -17,14 +17,16 @@ ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 CREATE TABLE IF NOT EXISTS public.listings (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+  user_id UUID REFERENCES auth.users ON DELETE CASCADE NOT NULL,
   title TEXT NOT NULL,
   description TEXT,
   price NUMERIC,
   type TEXT CHECK (type IN ('lote', 'casa', 'proyecto')),
   images TEXT[],
   status TEXT DEFAULT 'active' CHECK (status IN ('active', 'sold', 'pending')),
-  location TEXT
+  location TEXT,
+  views INTEGER DEFAULT 0,
+  clicks INTEGER DEFAULT 0
 );
 
 -- Active RLS on listings
