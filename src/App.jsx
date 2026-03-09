@@ -3,7 +3,15 @@ import defaultConfig from "./hooks/defaultConfig";
 import useConfig from "./hooks/useConfig";
 import { useDataSdk } from "./hooks/useDataSdk";
 
-import { Routes, Route, Navigate } from "react-router-dom"
+import { Routes, Route, Navigate, useLocation } from "react-router-dom"
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
 
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -30,7 +38,7 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
 
   if (loading) return <div className="flex justify-center items-center h-screen italic">Cargando...</div>;
   if (!user) return <Navigate to="/login" />;
-  if (adminOnly && profile?.role !== 'admin') return <Navigate to="/" />;
+  if (adminOnly && profile?.role !== 'admin' && profile?.role !== 'superadmin') return <Navigate to="/" />;
 
   return children;
 };
@@ -54,6 +62,7 @@ export default function App() {
 
   return (
     <div id="app-root" className="w-full h-full bg-white flex flex-col">
+      <ScrollToTop />
       <Header config={config} />
       <main className="flex-1 w-full">
         <Routes>

@@ -384,9 +384,16 @@ export default function TerrenoDetalle() {
                 <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-black uppercase tracking-widest mb-3 inline-block">
                   {listing.type}
                 </span>
-                <h1 className="text-3xl md:text-4xl font-black text-gray-900 capitalize">
-                  {listing.title}
-                </h1>
+                <div className="flex items-center gap-3 mb-3">
+                  <h1 className="text-3xl md:text-4xl font-black text-gray-900 capitalize">
+                    {listing.title}
+                  </h1>
+                  {listing.is_certified && (
+                    <div className="bg-emerald-600 text-white p-1 rounded-full shadow-lg shadow-emerald-200" title="Propiedad Certificada por Habitech">
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" /></svg>
+                    </div>
+                  )}
+                </div>
                 <p className="text-gray-500 mt-2 flex items-center gap-2">
                   <svg className="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                   {listing.location}
@@ -433,6 +440,20 @@ export default function TerrenoDetalle() {
               </div>
             </div>
 
+            {listing.is_certified && (
+              <div className="border-t border-gray-100 pt-8 mb-4">
+                <div className="bg-gradient-to-r from-emerald-50 to-white p-6 rounded-2xl border border-emerald-100 flex items-center gap-6">
+                  <div className="bg-emerald-600 text-white p-3 rounded-full shadow-lg shadow-emerald-200">
+                    <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" /></svg>
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-black text-emerald-950 uppercase tracking-tight">Propiedad Certificada</h4>
+                    <p className="text-sm text-emerald-700 font-medium leading-relaxed">Este lote ha sido verificado físicamente y legalmente por el equipo de Habitech, garantizando una inversión segura y transparente.</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* UBICACIÓN EXACTA (MAPA) */}
             {(listing.latitude && listing.longitude) && (
               <div className="border-t border-gray-100 pt-8">
@@ -465,7 +486,12 @@ export default function TerrenoDetalle() {
               </div>
               <div>
                 <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">Vendedor experto</p>
-                <p className="text-lg font-bold text-gray-900">{listing.profiles?.full_name || "Asesor Habitech"}</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-lg font-bold text-gray-900">{listing.profiles?.full_name || "Asesor Habitech"}</p>
+                  {listing.profiles?.is_verified && (
+                    <svg className="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
+                  )}
+                </div>
               </div>
             </div>
 
