@@ -20,7 +20,7 @@ export default function AdminDashboard() {
         const { data: profiles, error: pError } = await supabase
             .from('profiles')
             .select('*')
-            .order('created_at', { ascending: false });
+            .order('updated_at', { ascending: false });
 
         const { data: listings, error: lError } = await supabase
             .from('listings')
