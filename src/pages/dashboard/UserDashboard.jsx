@@ -17,10 +17,12 @@ export default function UserDashboard() {
     }, [profile]);
 
     useEffect(() => {
-        if (user) {
+        if (user && profile?.seller_status === 'approved') {
             fetchMyListings();
         }
-    }, [user]);
+    }, [user, profile]);
+
+    const sellerStatus = profile?.seller_status || 'none'; // 'none', 'pending', 'approved', 'rejected'
 
     const fetchMyListings = async () => {
         const { data, error } = await supabase
@@ -94,15 +96,90 @@ export default function UserDashboard() {
                     </p>
                 </div>
                 <div className="mt-4 flex md:mt-0 md:ml-4">
-                    <button
-                        type="button"
-                        onClick={handleCreate}
-                        className="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors"
-                    >
-                        <span className="mr-2">+</span> Nueva Publicación
-                    </button>
+                    {sellerStatus === 'approved' && (
+                        <button
+                            type="button"
+                            onClick={handleCreate}
+                            className="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all font-black uppercase tracking-widest"
+                        >
+                            + Nueva Publicación
+                        </button>
+                    )}
                 </div>
             </div>
+
+            {/* SECCIÓN DE VERIFICACIÓN DE VENDEDOR */}
+            {sellerStatus !== 'approved' && (
+                <div className="mb-12 bg-white rounded-[2.5rem] shadow-2xl border border-orange-100 overflow-hidden">
+                    <div className="p-8 md:p-12">
+                        <div className="flex flex-col md:flex-row gap-10 items-center">
+                            <div className="flex-1 space-y-6">
+                                <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-orange-100 rounded-full">
+                                    <span className="w-2 h-2 bg-orange-600 rounded-full animate-pulse"></span>
+                                    <span className="text-[10px] font-black text-orange-900 uppercase tracking-widest">Activar Perfil Profesional</span>
+                                </div>
+                                <h3 className="text-3xl md:text-4xl font-black text-gray-900 leading-tight">
+                                    Conviértete en <span className="text-orange-600">Vendedor Certificado</span>
+                                </h3>
+                                <p className="text-gray-500 font-medium text-lg leading-relaxed">
+                                    Para garantizar la seguridad de nuestra comunidad, necesitamos verificar tu identidad. Una vez aprobado, podrás publicar tus propiedades y recibir leads ilimitados.
+                                </p>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-2xl">
+                                        <div className="bg-white p-2 rounded-lg shadow-sm">🛡️</div>
+                                        <div>
+                                            <p className="text-xs font-black text-gray-900 uppercase">Seguridad Real</p>
+                                            <p className="text-[10px] text-gray-400 font-bold uppercase">Verificamos cada documento</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-2xl">
+                                        <div className="bg-white p-2 rounded-lg shadow-sm">⚡</div>
+                                        <div>
+                                            <p className="text-xs font-black text-gray-900 uppercase">Respuesta Rápida</p>
+                                            <p className="text-[10px] text-gray-400 font-bold uppercase">Activación en menos de 24h</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="w-full md:w-[400px] bg-gray-50 p-8 rounded-[2rem] border border-gray-100">
+                                {sellerStatus === 'pending' ? (
+                                    <div className="text-center py-10 space-y-6">
+                                        <div className="w-20 h-20 bg-orange-600 rounded-[2rem] flex items-center justify-center mx-auto shadow-2xl shadow-orange-200 rotate-12">
+                                            <svg className="w-10 h-10 text-white animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-black text-gray-900 uppercase tracking-widest text-lg">Solicitud en Proceso</h4>
+                                            <p className="text-xs text-gray-500 font-bold uppercase mt-2">Estamos revisando tus documentos. Recibirás una notificación en las próximas 24 horas.</p>
+                                        </div>
+                                        <div className="h-[2px] w-full bg-gray-200 rounded-full"></div>
+                                        <p className="text-[9px] font-black text-orange-600 uppercase tracking-tighter italic">Gracias por confiar en Habitech</p>
+                                    </div>
+                                ) : sellerStatus === 'rejected' ? (
+                                    <div className="text-center py-6 space-y-4">
+                                        <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto">
+                                            <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
+                                        </div>
+                                        <h4 className="font-black text-red-900 uppercase">Solicitud Rechazada</h4>
+                                        <p className="text-[10px] text-gray-500 font-medium">Hubo un problema con tus documentos. Por favor, intenta de nuevo con fotos más claras.</p>
+                                        <button
+                                            onClick={() => {
+                                                supabase.from('profiles').update({ seller_status: 'none' }).eq('id', user.id).then(() => window.location.reload());
+                                            }}
+                                            className="w-full py-3 bg-gray-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest"
+                                        >
+                                            Reintentar Solicitud
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <SellerApplicationForm user={user} supabase={supabase} />
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Métrica de resumen */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -224,10 +301,126 @@ export default function UserDashboard() {
                     setSelectedListing(null);
                 }}
                 user={user}
+                profile={profile}
                 supabase={supabase}
                 onSaved={fetchMyListings}
                 listing={selectedListing}
             />
+        </div>
+    );
+}
+
+function SellerApplicationForm({ user, supabase }) {
+    const [loading, setLoading] = useState(false);
+    const [docs, setDocs] = useState({ front: '', back: '', secondary: '' });
+
+    const handleUpload = (type) => {
+        const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+        const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+
+        window.cloudinary.openUploadWidget({
+            cloudName,
+            uploadPreset,
+            sources: ["local", "camera"],
+            multiple: false,
+            folder: "seller_verification",
+        }, (error, result) => {
+            if (!error && result && result.event === "success") {
+                setDocs(prev => ({ ...prev, [type]: result.info.secure_url }));
+            }
+        });
+    };
+
+    const handleSubmit = async () => {
+        if (!docs.front || !docs.back || !docs.secondary) {
+            alert("Por favor sube todos los documentos requeridos");
+            return;
+        }
+
+        setLoading(true);
+        const { error } = await supabase
+            .from('profiles')
+            .update({
+                seller_status: 'pending',
+                id_card_front: docs.front,
+                id_card_back: docs.back,
+                secondary_document: docs.secondary,
+                seller_request_date: new Date().toISOString()
+            })
+            .eq('id', user.id);
+
+        if (!error) {
+            window.location.reload();
+        } else {
+            alert("Error al enviar solicitud: " + error.message);
+        }
+        setLoading(false);
+    };
+
+    return (
+        <div className="space-y-4">
+            <h4 className="text-[11px] font-black text-gray-400 uppercase tracking-widest text-center mb-6">Documentación Requerida</h4>
+
+            <div className="grid grid-cols-2 gap-3">
+                <button
+                    onClick={() => handleUpload('front')}
+                    className={`h-24 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition-all group ${docs.front ? 'bg-orange-50 border-orange-200' : 'border-gray-200 hover:border-orange-300'}`}
+                >
+                    {docs.front ? (
+                        <div className="relative w-full h-full p-2">
+                            <img src={docs.front} className="w-full h-full object-cover rounded-xl" />
+                        </div>
+                    ) : (
+                        <>
+                            <span className="text-xl">💳</span>
+                            <span className="text-[8px] font-black text-gray-400 uppercase group-hover:text-orange-600">Cédula Frente</span>
+                        </>
+                    )}
+                </button>
+
+                <button
+                    onClick={() => handleUpload('back')}
+                    className={`h-24 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition-all group ${docs.back ? 'bg-orange-50 border-orange-200' : 'border-gray-200 hover:border-orange-300'}`}
+                >
+                    {docs.back ? (
+                        <div className="relative w-full h-full p-2">
+                            <img src={docs.back} className="w-full h-full object-cover rounded-xl" />
+                        </div>
+                    ) : (
+                        <>
+                            <span className="text-xl">🔄</span>
+                            <span className="text-[8px] font-black text-gray-400 uppercase group-hover:text-orange-600">Cédula Respaldo</span>
+                        </>
+                    )}
+                </button>
+            </div>
+
+            <button
+                onClick={() => handleUpload('secondary')}
+                className={`w-full h-16 rounded-2xl border-2 border-dashed flex items-center justify-center gap-4 transition-all group ${docs.secondary ? 'bg-orange-50 border-orange-200' : 'border-gray-200 hover:border-orange-300'}`}
+            >
+                {docs.secondary ? (
+                    <div className="flex items-center gap-2">
+                        <span className="text-green-500">✅</span>
+                        <span className="text-[10px] font-black text-gray-700 uppercase">Documento Extra cargado</span>
+                    </div>
+                ) : (
+                    <>
+                        <span className="text-xl">📄</span>
+                        <span className="text-[10px] font-black text-gray-400 uppercase group-hover:text-orange-600">Tarjeta Profesional o Certificado</span>
+                    </>
+                )}
+            </button>
+
+            <div className="pt-4">
+                <button
+                    onClick={handleSubmit}
+                    disabled={loading || !docs.front || !docs.back || !docs.secondary}
+                    className="w-full py-4 bg-orange-600 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl shadow-orange-100 hover:bg-orange-700 transition-all active:scale-95 disabled:opacity-50"
+                >
+                    {loading ? 'Enviando...' : 'Solicitar Activación'}
+                </button>
+            </div>
         </div>
     );
 }

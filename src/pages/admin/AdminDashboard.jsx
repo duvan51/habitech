@@ -6,7 +6,8 @@ export default function AdminDashboard() {
     const [users, setUsers] = useState([]);
     const [allListings, setAllListings] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState('users'); // 'users' or 'listings'
+    const [activeTab, setActiveTab] = useState('users'); // 'users', 'listings', or 'sellers'
+    const [previewDoc, setPreviewDoc] = useState(null); // URL to preview document
 
     const isSuperAdmin = profile?.role === 'superadmin';
 
@@ -61,6 +62,16 @@ export default function AdminDashboard() {
         if (!error) fetchData();
     };
 
+    const updateSellerStatus = async (userId, newStatus) => {
+        if (!isSuperAdmin) return;
+        const { error } = await supabase
+            .from('profiles')
+            .update({ seller_status: newStatus })
+            .eq('id', userId);
+
+        if (!error) fetchData();
+    };
+
     if (loading) return (
         <div className="flex items-center justify-center min-h-screen bg-gray-50 uppercase tracking-widest font-black text-gray-400">
             Cargando centro de mando...
@@ -88,6 +99,12 @@ export default function AdminDashboard() {
                             className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'users' ? 'bg-gray-900 text-white shadow-xl' : 'text-gray-400 hover:text-gray-900'}`}
                         >
                             Gestión Usuarios
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('sellers')}
+                            className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'sellers' ? 'bg-orange-600 text-white shadow-xl' : 'text-gray-400 hover:text-gray-900'}`}
+                        >
+                            Solicitudes Vendedor
                         </button>
                         <button
                             onClick={() => setActiveTab('listings')}
@@ -186,6 +203,58 @@ export default function AdminDashboard() {
                                 </tbody>
                             </table>
                         </div>
+                    ) : activeTab === 'sellers' ? (
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="bg-gray-50 border-b border-gray-100">
+                                        <th className="px-10 py-6 text-[11px] font-black text-gray-400 uppercase tracking-widest">Solicitante</th>
+                                        <th className="px-10 py-6 text-[11px] font-black text-gray-400 uppercase tracking-widest">Documentos ID</th>
+                                        <th className="px-10 py-6 text-[11px] font-black text-gray-400 uppercase tracking-widest">Documento Extra</th>
+                                        <th className="px-10 py-6 text-[11px] font-black text-gray-400 uppercase tracking-widest text-right">Decisión</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-50">
+                                    {users.filter(u => u.seller_status === 'pending').map(u => (
+                                        <tr key={u.id} className="hover:bg-gray-50/50 transition-colors group">
+                                            <td className="px-10 py-8">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center font-black text-orange-600">
+                                                        {u.full_name?.charAt(0) || 'U'}
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-black text-gray-900 text-sm">{u.full_name}</p>
+                                                        <p className="text-[10px] text-gray-400 font-bold uppercase">{u.seller_request_date ? new Date(u.seller_request_date).toLocaleDateString() : 'Fecha N/A'}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-10 py-8">
+                                                <div className="flex gap-2">
+                                                    <button onClick={() => setPreviewDoc(u.id_card_front)} className="px-3 py-1.5 bg-gray-900 text-white text-[9px] font-black uppercase rounded-lg hover:bg-orange-600">Frente</button>
+                                                    <button onClick={() => setPreviewDoc(u.id_card_back)} className="px-3 py-1.5 bg-gray-900 text-white text-[9px] font-black uppercase rounded-lg hover:bg-orange-600">Atrás</button>
+                                                </div>
+                                            </td>
+                                            <td className="px-10 py-8">
+                                                <button onClick={() => setPreviewDoc(u.secondary_document)} className="px-3 py-1.5 bg-blue-600 text-white text-[9px] font-black uppercase rounded-lg hover:bg-blue-700">Ver Soporte</button>
+                                            </td>
+                                            <td className="px-10 py-8 text-right">
+                                                <div className="flex items-center justify-end gap-2 text-[10px] font-black">
+                                                    <button onClick={() => updateSellerStatus(u.id, 'rejected')} className="text-red-500 hover:bg-red-50 px-3 py-2 rounded-xl transition-colors">Rechazar</button>
+                                                    <button onClick={() => updateSellerStatus(u.id, 'approved')} className="bg-emerald-600 text-white px-5 py-2 rounded-xl shadow-lg shadow-emerald-100 hover:bg-emerald-700 transition-all">Aprobar Vendedor</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {users.filter(u => u.seller_status === 'pending').length === 0 && (
+                                        <tr>
+                                            <td colSpan="4" className="px-10 py-20 text-center font-black text-gray-300 uppercase italic tracking-widest">
+                                                No hay solicitudes pendientes por ahora
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     ) : (
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse">
@@ -241,6 +310,24 @@ export default function AdminDashboard() {
                     )}
                 </div>
             </div>
+
+            {/* MODAL PREVIEW DOCUMENTO */}
+            {previewDoc && (
+                <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm" onClick={() => setPreviewDoc(null)}>
+                    <div className="relative max-w-4xl w-full bg-white rounded-3xl overflow-hidden shadow-2xl animate-in zoom-in duration-300" onClick={e => e.stopPropagation()}>
+                        <button
+                            onClick={() => setPreviewDoc(null)}
+                            className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 text-white rounded-full p-2"
+                        >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                        <img src={previewDoc} className="w-full h-auto max-h-[80vh] object-contain" />
+                        <div className="p-6 bg-gray-900 text-center">
+                            <p className="text-white font-black uppercase text-xs tracking-widest">Vista de Documento de Identidad / Soporte</p>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

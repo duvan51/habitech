@@ -271,7 +271,7 @@ function MapSearch({ onLocationSelected }) {
     );
 }
 
-export default function ListingModal({ isOpen, onClose, user, onSaved, supabase, listing = null }) {
+export default function ListingModal({ isOpen, onClose, user, profile, onSaved, supabase, listing = null }) {
     const initialState = {
         title: '',
         description: '',
@@ -423,6 +423,12 @@ export default function ListingModal({ isOpen, onClose, user, onSaved, supabase,
         e.preventDefault();
         setLoading(true);
         setError(null);
+
+        if (profile?.seller_status !== 'approved') {
+            setError('Tu perfil no está verificado como vendedor. Por favor solicita verificación en tu panel.');
+            setLoading(false);
+            return;
+        }
 
         const dataToSave = {
             ...formData,
