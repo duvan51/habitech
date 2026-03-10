@@ -61,8 +61,9 @@ export default function Marketplace() {
     const navigate = useNavigate();
     const [listings, setListings] = useState([]);
     const [visibleListings, setVisibleListings] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [hoveredId, setHoveredId] = useState(null);
+    const [fetchError, setFetchError] = useState(null);
+    const [debugInfo, setDebugInfo] = useState('');
 
 
 
@@ -72,27 +73,47 @@ export default function Marketplace() {
 
     const fetchListings = async () => {
         setLoading(true);
-        const { data, error } = await supabase
-            .from('listings')
-            .select('*, profiles(full_name)')
-            .eq('status', 'active')
-            .order('created_at', { ascending: false });
+        setFetchError(null);
+        try {
+            // Debugging connection
+            setDebugInfo('Conectando a Supabase...');
 
-        if (error) {
-            console.error("Error cargando marketplace:", error);
-            // Fallback sin profile para evitar errores de join si hay problemas de RLS/Policy
-            const { data: fallbackData } = await supabase
+            const { data, error } = await supabase
                 .from('listings')
-                .select('*')
+                .select('*, profiles(full_name)')
                 .eq('status', 'active')
                 .order('created_at', { ascending: false });
-            setListings(fallbackData || []);
-            setVisibleListings(fallbackData || []); // Init visible as all if map not used yet
-        } else {
-            setListings(data || []);
-            setVisibleListings(data || []); // Init visible with all results
+
+            if (error) {
+                console.error("Error principal:", error);
+                setDebugInfo(`Error principal: ${error.message}. Intentando fallback...`);
+
+                // Fallback sin join (puede ser problema de RLS en profiles)
+                const { data: fallbackData, error: fallbackError } = await supabase
+                    .from('listings')
+                    .select('*')
+                    .eq('status', 'active')
+                    .order('created_at', { ascending: false });
+
+                if (fallbackError) {
+                    setFetchError(fallbackError.message);
+                    setDebugInfo(`Error crítico: ${fallbackError.message}`);
+                } else {
+                    setListings(fallbackData || []);
+                    setVisibleListings(fallbackData || []);
+                    setDebugInfo('Carga exitosa vía fallback.');
+                }
+            } else {
+                setListings(data || []);
+                setVisibleListings(data || []);
+                setDebugInfo(`Éxito: ${data?.length || 0} publicaciones encontradas.`);
+            }
+        } catch (err) {
+            setFetchError(err.message);
+            setDebugInfo(`Excepción: ${err.message}`);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     const handleListingClick = async (id, currentClicks) => {
@@ -126,10 +147,22 @@ export default function Marketplace() {
                         </div>
                     </div>
 
-                    {loading ? (
+                    {fetchError ? (
+                        <div className="text-center py-20 bg-red-50 rounded-3xl border border-red-100 mx-4">
+                            <p className="text-red-600 font-bold uppercase text-xs tracking-widest mb-4">Error de Sincronización</p>
+                            <p className="text-gray-600 text-sm mb-6">{fetchError}</p>
+                            <button
+                                onClick={fetchListings}
+                                className="px-8 py-3 bg-red-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest"
+                            >
+                                Reintentar Conexión
+                            </button>
+                        </div>
+                    ) : loading ? (
                         <div className="flex flex-col items-center justify-center py-20">
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
                             <span className="mt-4 text-gray-500 font-medium tracking-widest uppercase text-[10px]">Cargando el mercado...</span>
+                            <span className="mt-2 text-[8px] text-gray-300 uppercase tracking-tighter">{debugInfo}</span>
                         </div>
                     ) : listings.length === 0 ? (
                         <div className="text-center py-20 bg-white rounded-3xl shadow-sm border border-gray-100 mx-4">
@@ -137,6 +170,7 @@ export default function Marketplace() {
                                 <svg fill="currentColor" viewBox="0 0 24 24"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
                             </div>
                             <p className="text-gray-500 text-lg font-medium tracking-wide">Aún no hay publicaciones activas.</p>
+                            <p className="mt-2 text-[8px] text-gray-300 uppercase">{debugInfo}</p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 px-4">
