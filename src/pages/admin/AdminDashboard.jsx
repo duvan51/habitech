@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../hooks/AuthContext';
+import { createNotification } from '../../api/notifications';
 
 export default function AdminDashboard() {
     const { supabase, profile } = useAuth();
@@ -64,12 +65,36 @@ export default function AdminDashboard() {
 
     const updateSellerStatus = async (userId, newStatus) => {
         if (!isSuperAdmin) return;
+
+        const updates = { seller_status: newStatus };
+        if (newStatus === 'approved') {
+            updates.is_verified = true;
+        }
+
         const { error } = await supabase
             .from('profiles')
-            .update({ seller_status: newStatus })
+            .update(updates)
             .eq('id', userId);
 
-        if (!error) fetchData();
+        if (!error) {
+            if (newStatus === 'approved') {
+                await createNotification(
+                    userId,
+                    'system',
+                    '¡Felicidades! Has sido aprobado como vendedor oficial de Habitech. Ya puedes publicar tus propiedades.'
+                );
+            } else if (newStatus === 'rejected') {
+                await createNotification(
+                    userId,
+                    'system',
+                    'Tu solicitud de vendedor ha sido rechazada. Por favor revisa tus documentos e inténtalo de nuevo.'
+                );
+            }
+            fetchData();
+        } else {
+            console.error("Error updating seller status:", error);
+            alert("Error al actualizar: " + error.message);
+        }
     };
 
     if (loading) return (
@@ -284,7 +309,7 @@ export default function AdminDashboard() {
                                             <td className="px-10 py-8 text-center">
                                                 <button
                                                     onClick={() => toggleCertification(l.id, l.is_certified)}
-                                                    className={`inline-flex items-center gap-2 px-6 py-2 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all ${l.is_certified ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-100' : 'bg-gray-50 text-gray-300 hover:text-emerald-500 hover:bg-emerald-50'}`}
+                                                    className={`inline-flex items-center gap-2 px-6 py-2 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all ${l.is_certified ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'bg-gray-50 text-gray-300 hover:text-blue-500 hover:bg-blue-50'}`}
                                                 >
                                                     {l.is_certified ? (
                                                         <>

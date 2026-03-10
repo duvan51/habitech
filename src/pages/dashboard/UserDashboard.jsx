@@ -108,6 +108,19 @@ export default function UserDashboard() {
                 </div>
             </div>
 
+            {/* NOTIFICACIÓN DE APROBACIÓN */}
+            {sellerStatus === 'approved' && (
+                <div className="mb-8 bg-emerald-50 border border-emerald-100 p-6 rounded-[2rem] flex items-center gap-6 animate-in fade-in slide-in-from-top-4 duration-700">
+                    <div className="w-14 h-14 bg-emerald-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-100 shrink-0">
+                        <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
+                    </div>
+                    <div>
+                        <h4 className="text-emerald-900 font-black uppercase tracking-tighter text-lg">¡Cuenta de Vendedor Activada!</h4>
+                        <p className="text-emerald-700 text-xs font-bold uppercase mt-1">Has sido aprobado como vendedor oficial de Habitech. Ya puedes empezar a publicar y vender tus propiedades.</p>
+                    </div>
+                </div>
+            )}
+
             {/* SECCIÓN DE VERIFICACIÓN DE VENDEDOR */}
             {sellerStatus !== 'approved' && (
                 <div className="mb-12 bg-white rounded-[2.5rem] shadow-2xl border border-orange-100 overflow-hidden">
