@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../hooks/AuthContext";
 import { supabase } from "../api/supabaseClient";
+import { useNavigate } from "react-router-dom";
+import { createNotification, startChat } from "../api/notifications";
 import { MapContainer, TileLayer, Marker } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -130,7 +132,7 @@ function VideoPlayer({ url }) {
   );
 }
 
-function CommentsSection({ listingId }) {
+function CommentsSection({ listingId, sellerId, listingTitle }) {
   const { user, profile } = useAuth();
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
@@ -172,6 +174,16 @@ function CommentsSection({ listingId }) {
     if (!error) {
       setNewComment("");
       fetchComments();
+
+      // Notificar al vendedor
+      if (sellerId !== user.id) {
+        await createNotification(
+          sellerId,
+          'comment',
+          `${profile?.full_name || 'Alguien'} comentó en tu propiedad "${listingTitle}": "${newComment.substring(0, 30)}..."`,
+          listingId
+        );
+      }
     }
     setLoading(false);
   };
@@ -234,12 +246,28 @@ function CommentsSection({ listingId }) {
 }
 
 export default function TerrenoDetalle() {
-  const { id } = useParams();
+  const { id: listingId } = useParams();
+  const { user, profile } = useAuth();
+  const navigate = useNavigate();
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeImage, setActiveImage] = useState(0);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
+  const handleStartChat = async () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    try {
+      const chatId = await startChat(user.id, listing.user_id, listing.id);
+      navigate(`/mensajes?chatId=${chatId}`);
+    } catch (err) {
+      console.error("Error starting chat:", err);
+    }
+  };
 
   const allMedia = [
     ...(listing?.images || []).map(url => ({ type: 'image', url })),
@@ -255,7 +283,7 @@ export default function TerrenoDetalle() {
         const { data, error } = await supabase
           .from('listings')
           .select('*, profiles:user_id(*)')
-          .eq('id', id)
+          .eq('id', listingId)
           .single();
 
         if (error) {
@@ -263,7 +291,7 @@ export default function TerrenoDetalle() {
           const { data: fallbackData, error: fallbackError } = await supabase
             .from('listings')
             .select('*')
-            .eq('id', id)
+            .eq('id', listingId)
             .single();
 
           if (fallbackError) throw fallbackError;
@@ -279,7 +307,7 @@ export default function TerrenoDetalle() {
           await supabase
             .from('listings')
             .update({ views: (finalData.views || 0) + 1 })
-            .eq('id', id);
+            .eq('id', listingId);
         }
 
       } catch (err) {
@@ -290,8 +318,8 @@ export default function TerrenoDetalle() {
       }
     };
 
-    if (id) fetchListing();
-  }, [id]);
+    if (listingId) fetchListing();
+  }, [listingId]);
 
   if (loading) return (
     <div className="flex flex-col justify-center items-center h-screen bg-gray-50">
@@ -505,7 +533,14 @@ export default function TerrenoDetalle() {
                 <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.022-.047-.078-.133-.232-.211-.154-.078-.912-.451-1.054-.502-.142-.05-.245-.078-.348.078-.103.156-.399.502-.489.605-.09.103-.18.115-.334.037-.155-.078-.652-.241-1.241-.767-.459-.41-1.037-.916-1.127-1.071-.09-.155-.01-.239.068-.317.071-.071.156-.18.234-.27.08-.09.105-.153.159-.255.053-.102.026-.192-.013-.27-.04-.078-.35-.845-.48-1.156-.126-.305-.255-.264-.348-.269-.09-.004-.192-.005-.294-.005-.102 0-.27.038-.41.192-.141.156-.54.528-.54 1.288 0 .76.552 1.494.629 1.6.078.106 1.087 1.66 2.632 2.33.368.159.654.254.877.325.37.118.706.101.972.062.297-.044.912-.372 1.04-.733.128-.36.128-.67.09-.734-.04-.064-.105-.102-.231-.18zm-5.472 7.618c-2.484 0-4.832-.969-6.606-2.74-1.748-1.748-2.711-4.068-2.711-6.53 0-2.484.969-4.832 2.74-6.606 1.748-1.748 4.068-2.711 6.53-2.711 2.484 0 4.832.969 6.606 2.74C20.309 6.901 21.272 9.221 21.272 11.703c0 2.484-.969 4.832-2.74 6.606-1.748 1.748-4.068 2.711-6.53 2.711zM12 0C5.383 0 0 5.383 0 12c0 6.617 5.383 12 12 12s12-5.383 12-12c0-6.617-5.383-12-12-12z" /></svg>
                 Contactar por WhatsApp
               </a>
-              <button className="w-full bg-gray-900 text-white py-4 rounded-2xl font-bold hover:bg-black transition-all">
+              <button
+                onClick={handleStartChat}
+                className="w-full bg-gray-900 text-white py-4 rounded-2xl font-bold hover:bg-black transition-all flex items-center justify-center gap-3 border-2 border-transparent hover:border-gray-800"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                Mensaje Directo
+              </button>
+              <button className="w-full bg-white text-gray-900 border border-gray-100 py-4 rounded-2xl font-bold hover:bg-gray-50 transition-all">
                 Solicitar Llamada
               </button>
             </div>
@@ -523,7 +558,11 @@ export default function TerrenoDetalle() {
           </div>
 
           {/* CAJA DE COMENTARIOS DEBAJO DEL VENDEDOR */}
-          <CommentsSection listingId={listing.id} />
+          <CommentsSection
+            listingId={listing.id}
+            sellerId={listing.user_id}
+            listingTitle={listing.title}
+          />
         </div>
 
         {/* CONTENEDOR DE PREVIEW (CARRUSEL) */}

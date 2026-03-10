@@ -9,6 +9,12 @@ export default function UserDashboard() {
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedListing, setSelectedListing] = useState(null);
+    const [phone, setPhone] = useState(profile?.phone || '');
+    const [savingProfile, setSavingProfile] = useState(false);
+
+    useEffect(() => {
+        if (profile?.phone) setPhone(profile.phone);
+    }, [profile]);
 
     useEffect(() => {
         if (user) {
@@ -27,6 +33,21 @@ export default function UserDashboard() {
             setMyListings(data);
         }
         setLoading(false);
+    };
+
+    const handleSaveProfile = async () => {
+        setSavingProfile(true);
+        const { error } = await supabase
+            .from('profiles')
+            .update({ phone })
+            .eq('id', user.id);
+
+        if (error) {
+            alert('Error al guardar: ' + error.message);
+        } else {
+            alert('Perfil actualizado con éxito');
+        }
+        setSavingProfile(false);
     };
 
     const handleEdit = (listing) => {
@@ -96,6 +117,35 @@ export default function UserDashboard() {
                 <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex flex-col">
                     <span className="text-gray-500 text-sm font-medium">Clicks Totales</span>
                     <span className="text-3xl font-bold text-green-600 mt-2">{stats.totalClicks}</span>
+                </div>
+            </div>
+
+            {/* Configuración de Perfil */}
+            <div className="bg-white shadow-sm overflow-hidden sm:rounded-[2rem] mb-10 border border-orange-100 bg-gradient-to-tr from-white to-orange-50/30 p-8">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                    <div>
+                        <h3 className="text-xl font-black text-gray-900 uppercase tracking-tight">Avisos Inmediatos por WhatsApp</h3>
+                        <p className="text-xs text-gray-500 font-bold uppercase mt-1">Recibe alertas en tiempo real cuando un cliente interesado te escriba</p>
+                    </div>
+                    <div className="flex w-full md:w-auto gap-3">
+                        <div className="relative flex-1 md:w-64">
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">+</span>
+                            <input
+                                type="text"
+                                placeholder="Ej: 573138673363"
+                                value={phone}
+                                onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+                                className="w-full pl-8 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm font-bold focus:ring-2 focus:ring-orange-500 transition-all outline-none"
+                            />
+                        </div>
+                        <button
+                            onClick={handleSaveProfile}
+                            disabled={savingProfile}
+                            className="px-6 py-3 bg-orange-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-orange-100 hover:bg-orange-700 transition-all active:scale-95 disabled:opacity-50"
+                        >
+                            {savingProfile ? 'Guardando...' : 'Activar Alertas'}
+                        </button>
+                    </div>
                 </div>
             </div>
 

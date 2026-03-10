@@ -5,7 +5,9 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   username TEXT UNIQUE,
   full_name TEXT,
   avatar_url TEXT,
-  role TEXT DEFAULT 'user' CHECK (role IN ('user', 'admin')),
+  role TEXT DEFAULT 'user' CHECK (role IN ('user', 'admin', 'superadmin')),
+  is_verified BOOLEAN DEFAULT false,
+  phone TEXT,
   
   CONSTRAINT username_length CHECK (CHAR_LENGTH(username) >= 3)
 );
