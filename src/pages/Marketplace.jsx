@@ -198,8 +198,8 @@ export default function Marketplace() {
                 </div>
 
                 {/* PROMOCIONAL BANNERS */}
-                <div className="mx-4 mb-24">
-                    <div className="bg-gray-900 rounded-[3.5rem] p-12 md:p-20 relative overflow-hidden shadow-2xl flex flex-col md:flex-row items-center gap-12">
+                <div className="mx-0 md:mx-4 mb-24">
+                    <div className="bg-gray-900 rounded-none md:rounded-[3.5rem] p-10 md:p-20 relative overflow-hidden shadow-2xl flex flex-col md:flex-row items-center gap-12">
                         <div className="absolute -top-32 -right-32 w-80 h-80 bg-orange-600/20 rounded-full blur-[100px] animate-pulse"></div>
                         <div className="absolute -bottom-32 -left-32 w-80 h-80 bg-orange-500/20 rounded-full blur-[100px] animate-pulse"></div>
 
@@ -232,10 +232,10 @@ export default function Marketplace() {
                 </div>
 
                 {/* MAPA EXPLORADOR DE INVERSIONES CON SIDEBAR DINÁMICO */}
-                <div className="mx-4 mt-12 bg-white rounded-[3.5rem] p-10 shadow-2xl border border-gray-100 overflow-hidden">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-6">
+                <div className="mx-0 md:mx-4 mt-12 bg-white rounded-none md:rounded-[3.5rem] p-0 md:p-10 shadow-2xl border border-gray-100 overflow-hidden">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between p-8 md:p-0 mb-4 md:mb-10 gap-6">
                         <div>
-                            <h2 className="text-4xl font-black text-gray-900 tracking-tight">Mapa de Oportunidades</h2>
+                            <h2 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight">Mapa de Oportunidades</h2>
                             <p className="text-[12px] text-gray-400 font-black italic uppercase tracking-[0.3em] mt-2">Explora terrenos y casas geolocalizados</p>
                         </div>
                         <div className="flex items-center gap-4 bg-orange-50 px-6 py-3 rounded-2xl border border-orange-100 self-start md:self-center shadow-sm">
@@ -244,9 +244,9 @@ export default function Marketplace() {
                         </div>
                     </div>
 
-                    <div className="h-[700px] rounded-[3rem] overflow-hidden border-4 border-gray-50 relative group shadow-inner">
-                        {/* Sidebar Izquierda dentro del mapa (DINÁMICA) */}
-                        <div className="absolute top-8 left-8 bottom-8 w-72 z-[1001] bg-white/80 backdrop-blur-2xl rounded-[2.5rem] border border-white/50 shadow-2xl flex flex-col overflow-hidden transition-all duration-700 hover:w-80 translate-x-0 group-hover:translate-x-2">
+                    <div className="h-[500px] md:h-[700px] rounded-none md:rounded-[3rem] overflow-hidden border-none md:border-4 border-gray-50 relative group shadow-inner">
+                        {/* Sidebar Izquierda dentro del mapa (DINÁMICA - OCULTA EN MOBILE) */}
+                        <div className="hidden md:flex absolute top-8 left-8 bottom-8 w-72 z-[1001] bg-white/80 backdrop-blur-2xl rounded-[2.5rem] border border-white/50 shadow-2xl flex-col overflow-hidden transition-all duration-700 hover:w-80 translate-x-0 group-hover:translate-x-2">
                             <div className="p-6 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative">
                                 <div className="absolute top-0 right-0 p-4 opacity-10">
                                     <svg className="w-20 h-20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2c-4 0-8 3-8 7 0 3 4 10 8 13.5 4-3.5 8-10.5 8-13.5 0-4-4-7-8-7z" /></svg>
@@ -380,7 +380,7 @@ export default function Marketplace() {
                         </MapContainer>
 
                         {/* Overlay Decorativo */}
-                        <div className="absolute top-8 right-8 z-[1000] bg-white/90 backdrop-blur-xl p-5 rounded-[2.5rem] shadow-2xl border border-white flex flex-col gap-4 pointer-events-none opacity-0 group-hover:opacity-100 transition-all duration-700 translate-y-4 group-hover:translate-y-0">
+                        <div className="hidden md:flex absolute top-8 right-8 z-[1000] bg-white/90 backdrop-blur-xl p-5 rounded-[2.5rem] shadow-2xl border border-white flex flex-col gap-4 pointer-events-none opacity-0 group-hover:opacity-100 transition-all duration-700 translate-y-4 group-hover:translate-y-0">
                             <div className="flex items-center gap-4">
                                 <div className="w-5 h-5 bg-orange-600 rounded-xl shadow-lg ring-4 ring-orange-500/20"></div>
                                 <span className="text-[11px] font-black text-gray-800 tracking-widest uppercase">Pines Activos</span>
@@ -388,6 +388,38 @@ export default function Marketplace() {
                             <div className="h-[2px] w-full bg-gray-100 rounded-full"></div>
                             <p className="text-[11px] font-bold text-gray-400 max-w-[170px] leading-relaxed italic">Haz clic para descubrir los tesoros de inversión en esta zona.</p>
                         </div>
+                    </div>
+
+                    {/* LISTA MÓVIL (VISIBLE SOLO EN MÓVIL ABAJO DEL MAPA) */}
+                    <div className="md:hidden p-8 space-y-4 bg-gray-50/30">
+                        <div className="flex items-center justify-between mb-4">
+                            <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Oportunidades en el área</h4>
+                            <span className="text-[10px] font-black px-2 py-0.5 bg-orange-600 text-white rounded-md">{visibleListings.length}</span>
+                        </div>
+                        {visibleListings.length === 0 ? (
+                            <p className="text-center py-10 text-[10px] font-black text-gray-300 uppercase italic">Mueve el mapa para encontrar lotes</p>
+                        ) : (
+                            <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-none snap-x">
+                                {visibleListings.map(l => (
+                                    <Link
+                                        key={l.id}
+                                        to={`/terrenoVentas/${l.id}`}
+                                        className="w-[280px] flex-none bg-white p-4 rounded-3xl shadow-lg border border-gray-100 snap-center"
+                                    >
+                                        <div className="flex gap-4">
+                                            <div className="w-20 h-20 rounded-2xl overflow-hidden flex-none">
+                                                <img src={l.images?.[0]} className="w-full h-full object-cover" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <h4 className="text-[11px] font-black text-gray-900 truncate uppercase">{l.title}</h4>
+                                                <p className="text-[14px] font-black text-orange-600 mt-1">${l.price?.toLocaleString()}</p>
+                                                <span className="inline-block mt-2 text-[8px] bg-gray-900 text-white px-2 py-0.5 rounded-lg font-black uppercase tracking-tighter">{l.type}</span>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
