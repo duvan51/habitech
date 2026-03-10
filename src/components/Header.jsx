@@ -106,12 +106,12 @@ export default function Header({ config }) {
                   </button>
 
                   {showNotifications && (
-                    <div className="absolute right-0 mt-3 w-80 bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden z-[999] animate-in fade-in slide-in-from-top-2 duration-300">
-                      <div className="p-4 border-b border-gray-50 flex justify-between items-center">
-                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Avisos Relevantes</span>
-                        {unreadCount > 0 && <span className="text-[8px] bg-orange-100 text-orange-600 px-2 py-1 rounded-full font-black">NUEVAS</span>}
+                    <div className="fixed inset-x-4 top-20 md:absolute md:inset-auto md:right-0 md:mt-3 w-auto md:w-80 bg-white rounded-[2rem] md:rounded-3xl shadow-2xl border border-gray-100 overflow-hidden z-[999] animate-in fade-in slide-in-from-top-2 duration-300">
+                      <div className="p-5 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+                        <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Centro de Avisos</span>
+                        {unreadCount > 0 && <span className="text-[8px] bg-orange-600 text-white px-2 py-1 rounded-full font-black animate-pulse shadow-lg shadow-orange-100 uppercase">Nuevas Alertas</span>}
                       </div>
-                      <div className="max-h-96 overflow-y-auto scrollbar-none">
+                      <div className="max-h-[60vh] md:max-h-96 overflow-y-auto scrollbar-none">
                         {notifications.length === 0 ? (
                           <div className="p-8 text-center">
                             <p className="text-gray-300 text-xs italic font-medium">Bandeja de entrada vacía</p>
