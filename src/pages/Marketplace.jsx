@@ -5,28 +5,29 @@ import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMapEvents } from 'r
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// Fix for default marker icons
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
-
-let DefaultIcon = L.icon({
-    iconUrl: markerIcon,
-    shadowUrl: markerShadow,
-    iconSize: [25, 41],
-    iconAnchor: [12, 41]
+// Fix for default marker icons - Using SVG for better production reliability across devices
+const customIcon = new L.DivIcon({
+    html: `<div style="background-color: #ea580c; width: 15px; height: 15px; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);"></div>`,
+    className: 'custom-div-icon',
+    iconSize: [15, 15],
+    iconAnchor: [7, 7]
 });
-L.Marker.prototype.options.icon = DefaultIcon;
+L.Marker.prototype.options.icon = customIcon;
 
 // Mover MapBoundariesHandler FUERA para evitar bucles infinitos (Maximum update depth exceeded)
 function MapBoundariesHandler({ listings, setVisibleListings }) {
     const map = useMapEvents({
         moveend: () => {
-            const bounds = map.getBounds();
-            const visible = listings.filter(l =>
-                l.latitude && l.longitude &&
-                bounds.contains([l.latitude, l.longitude])
-            );
-            setVisibleListings(visible);
+            try {
+                const bounds = map.getBounds();
+                const visible = (listings || []).filter(l =>
+                    l.latitude && l.longitude &&
+                    bounds.contains([l.latitude, l.longitude])
+                );
+                setVisibleListings(visible);
+            } catch (err) {
+                console.warn("Map not ready for bounds detection", err);
+            }
         },
         zoomend: () => {
             const bounds = map.getBounds();
@@ -39,13 +40,17 @@ function MapBoundariesHandler({ listings, setVisibleListings }) {
     });
 
     useEffect(() => {
-        if (listings.length > 0) {
-            const bounds = map.getBounds();
-            const visible = listings.filter(l =>
-                l.latitude && l.longitude &&
-                bounds.contains([l.latitude, l.longitude])
-            );
-            setVisibleListings(visible);
+        if (listings && listings.length > 0) {
+            try {
+                const bounds = map.getBounds();
+                const visible = listings.filter(l =>
+                    l.latitude && l.longitude &&
+                    bounds.contains([l.latitude, l.longitude])
+                );
+                setVisibleListings(visible);
+            } catch (err) {
+                console.log("Map bounds init delay...", err);
+            }
         }
     }, [listings, map]);
 
@@ -75,14 +80,17 @@ export default function Marketplace() {
 
         if (error) {
             console.error("Error cargando marketplace:", error);
+            // Fallback sin profile para evitar errores de join si hay problemas de RLS/Policy
             const { data: fallbackData } = await supabase
                 .from('listings')
                 .select('*')
                 .eq('status', 'active')
                 .order('created_at', { ascending: false });
             setListings(fallbackData || []);
+            setVisibleListings(fallbackData || []); // Init visible as all if map not used yet
         } else {
             setListings(data || []);
+            setVisibleListings(data || []); // Init visible with all results
         }
         setLoading(false);
     };
