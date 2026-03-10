@@ -61,6 +61,7 @@ export default function Marketplace() {
     const navigate = useNavigate();
     const [listings, setListings] = useState([]);
     const [visibleListings, setVisibleListings] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [hoveredId, setHoveredId] = useState(null);
     const [fetchError, setFetchError] = useState(null);
     const [debugInfo, setDebugInfo] = useState('');
