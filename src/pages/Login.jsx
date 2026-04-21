@@ -36,8 +36,8 @@ export default function Login() {
         <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-md w-full space-y-8 bg-white p-8 md:p-12 rounded-[2.5rem] shadow-2xl border border-gray-100 transform transition-all">
                 <div className="text-center">
-                    <div className="mx-auto h-16 w-16 bg-orange-600 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-200 mb-6">
-                        <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A10.003 10.003 0 0012 20c4.42 0 8.067-3.582 8-8.038-.063-4.456-3.75-8.156-8.25-8.156A8.5 8.5 0 003.5 12.3c0 2.25.9 4.3 2.5 5.75L12 11z" /></svg>
+                    <div className="mx-auto h-32 w-auto flex items-center justify-center mb-6">
+                        <img src="/logoHabitech.png" alt="Habitech Logo" className="h-full object-contain" />
                     </div>
                     <h2 className="text-3xl font-black text-gray-900 tracking-tight mb-2">
                         Bienvenido de Nuevo

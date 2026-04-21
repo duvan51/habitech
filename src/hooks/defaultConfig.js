@@ -5,8 +5,8 @@ const defaultConfig = {
   background_color: "#ffffff",
   surface_color: "#172c34",
   text_color: "#172c34",
-  primary_action_color: "#f37f40",
-  secondary_action_color: "#d66a35",
+  primary_action_color: "#ff6b00",
+  secondary_action_color: "#e66000",
   font_family: "Georgia",
   font_size: 17,
 

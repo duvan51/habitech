@@ -10,13 +10,16 @@ export default function Footer({ config }) {
       }}
     >
       <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="text-center space-y-3">
-          <p className="text-white text-base font-medium">
-            {config.footer_texto}
-          </p>
-          <p className="text-white text-sm">
-            Construyendo con calidad y compromiso desde hace más de 10 años
-          </p>
+        <div className="flex flex-col items-center space-y-6 text-center">
+          <img src="/logoHabitech.png" alt="Habitech Logo" className="h-32 w-auto" />
+          <div className="space-y-2">
+            <p className="text-white text-base font-semibold">
+              {config.footer_texto}
+            </p>
+            <p className="text-white/60 text-xs font-medium tracking-wide uppercase">
+              Pasión por la excelencia en construcción
+            </p>
+          </div>
         </div>
       </div>
     </footer>

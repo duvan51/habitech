@@ -24,6 +24,7 @@ import Industrial from "./pages/industrial";
 import Remodelaciones from "./pages/Remodelaciones";
 import Terrenos from "./pages/Terrenos";
 import TerrenoID from "./pages/TerrenoDetalles";
+import Portafolio from "./pages/Portafolio";
 
 // New Marketplace & Auth Pages
 import Marketplace from "./pages/Marketplace";
@@ -33,6 +34,7 @@ import UserDashboard from "./pages/dashboard/UserDashboard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import NotificationsPage from './pages/NotificationsPage';
 import MessagesPage from './pages/MessagesPage';
+import BeneficiosVendedor from "./pages/BeneficiosVendedor";
 import { useAuth } from "./hooks/AuthContext";
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
@@ -66,14 +68,15 @@ export default function App() {
     <div id="app-root" className="w-full h-full bg-white flex flex-col">
       <ScrollToTop />
       <Header config={config} />
-      <main className="flex-1 w-full">
+      <main className="flex-1 w-full pb-16 lg:pb-0">
         <Routes>
           {/* Marketplace as Root */}
           <Route path="/" element={<Marketplace />} />
 
-          {/* Auth Routes */}
+          {/* Auth & Promo Routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/beneficios-vendedor" element={<BeneficiosVendedor />} />
 
           {/* Dashboards */}
           <Route path="/dashboard" element={
@@ -103,6 +106,7 @@ export default function App() {
           <Route path="/hogar" element={<Hogar />} />
           <Route path="/industrial" element={<Industrial />} />
           <Route path="/remodelaciones" element={<Remodelaciones />} />
+          <Route path="/portafolio" element={<Portafolio />} />
 
           {/* Legacy Listings (from previous Habitech logic) */}
           <Route path="/terrenoVentas" element={<Terrenos />} />

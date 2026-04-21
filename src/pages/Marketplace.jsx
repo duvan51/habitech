@@ -126,15 +126,75 @@ export default function Marketplace() {
 
     return (
         <div className="bg-gray-50 min-h-screen">
-            {/* HERO SECTION */}
-            <div className="bg-gradient-to-r from-orange-600 to-orange-500 py-16 px-4">
-                <div className="max-w-7xl mx-auto text-center">
-                    <h1 className="text-4xl font-extrabold text-white sm:text-6xl mb-4">
-                        Marketplace Habitech
-                    </h1>
-                    <p className="text-xl text-orange-50 max-w-2xl mx-auto">
-                        Inversiones con respaldo real. Lotes, casas y proyectos seleccionados por expertos.
-                    </p>
+            {/* HERO SECTION - SPLIT LAYOUT */}
+            <div className="relative bg-orange-600 overflow-hidden min-h-[300px] md:min-h-[450px] flex items-center">
+                {/* Background Image - High Visibility */}
+                <div className="absolute top-0 right-0 w-full h-full md:w-1/2 pointer-events-none">
+                    <img 
+                        src="/imagen1.png" 
+                        alt="Luxurious Property" 
+                        className="w-full h-full object-cover"
+                    />
+                    {/* Subtle Overlay to ensure text legibility on small screens while keeping image visible */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-orange-600 via-orange-600/70 md:via-orange-600/0 to-transparent"></div>
+                </div>
+
+                <div className="max-w-7xl mx-auto w-full px-4 md:px-6 relative z-10 text-left">
+                    <div className="max-w-2xl">
+                        <h1 className="text-4xl font-black text-white sm:text-7xl mb-6 tracking-tighter drop-shadow-2xl leading-none">
+                            Marketplace <br/>
+                            Habitech
+                        </h1>
+                        <p className="text-lg md:text-2xl text-orange-50 font-medium drop-shadow-lg leading-relaxed opacity-95">
+                            Inversiones con respaldo real. <br />
+                            Lotes, casas y proyectos seleccionados por expertos.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {/* QUICK ACTIONS SECTION */}
+            <div className="max-w-7xl mx-auto px-4 -mt-8 md:-mt-12 relative z-20 pb-16">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                    {/* Comprar Propiedad */}
+                    <Link to="/terrenoVentas" className="group bg-white p-6 md:p-8 rounded-[2rem] shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-100 flex flex-col items-center text-center">
+                        <div className="w-14 h-14 md:w-16 md:h-16 bg-orange-50 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-orange-600 transition-colors">
+                            <svg className="w-7 h-7 md:w-8 md:h-8 text-orange-600 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            </svg>
+                        </div>
+                        <h3 className="text-sm md:text-base font-black text-gray-900 uppercase tracking-tight">Comprar Propiedad</h3>
+                    </Link>
+
+                    {/* Vender tu Propiedad */}
+                    <Link to="/beneficios-vendedor" className="group bg-white p-6 md:p-8 rounded-[2rem] shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-100 flex flex-col items-center text-center">
+                        <div className="w-14 h-14 md:w-16 md:h-16 bg-orange-50 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-orange-600 transition-colors">
+                            <svg className="w-7 h-7 md:w-8 md:h-8 text-orange-600 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <h3 className="text-sm md:text-base font-black text-gray-900 uppercase tracking-tight">Vender Propiedad</h3>
+                    </Link>
+
+                    {/* Construccion Servicios */}
+                    <Link to="/constructora" className="group bg-white p-6 md:p-8 rounded-[2rem] shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-100 flex flex-col items-center text-center">
+                        <div className="w-14 h-14 md:w-16 md:h-16 bg-orange-50 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-orange-600 transition-colors">
+                            <svg className="w-7 h-7 md:w-8 md:h-8 text-orange-600 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                            </svg>
+                        </div>
+                        <h3 className="text-sm md:text-base font-black text-gray-900 uppercase tracking-tight">Construcción</h3>
+                    </Link>
+
+                    {/* Proyectos Destacados */}
+                    <Link to="/proyectos" className="group bg-white p-6 md:p-8 rounded-[2rem] shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-100 flex flex-col items-center text-center">
+                        <div className="w-14 h-14 md:w-16 md:h-16 bg-orange-50 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-orange-600 transition-colors">
+                            <svg className="w-7 h-7 md:w-8 md:h-8 text-orange-600 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-7.714 2.143L11 21l-2.286-6.857L1 12l7.714-2.143L11 3z" />
+                            </svg>
+                        </div>
+                        <h3 className="text-sm md:text-base font-black text-gray-900 uppercase tracking-tight">Proyectos</h3>
+                    </Link>
                 </div>
             </div>
 
@@ -238,6 +298,76 @@ export default function Marketplace() {
                             ))}
                         </div>
                     )}
+                </div>
+
+                {/* BANNER PUBLICAR PROPIEDAD */}
+                <div className="mx-0 md:mx-4 mb-24">
+                    <div className="bg-gradient-to-br from-orange-600 to-orange-500 rounded-[2rem] md:rounded-[3rem] p-10 md:p-16 relative overflow-hidden shadow-2xl shadow-orange-600/30 flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12 group">
+                        {/* Adornos visuales */}
+                        <div className="absolute top-0 right-0 w-80 h-80 bg-orange-400 rounded-full mix-blend-overlay filter blur-3xl opacity-50 translate-x-1/3 -translate-y-1/3 group-hover:scale-110 group-hover:opacity-70 transition-all duration-700"></div>
+                        <div className="absolute bottom-0 left-0 w-64 h-64 bg-orange-700 rounded-full mix-blend-overlay filter blur-3xl opacity-50 -translate-x-1/2 translate-y-1/2 group-hover:scale-110 transition-all duration-700"></div>
+
+                        <div className="relative z-10 max-w-2xl text-center md:text-left flex-1">
+                            <h3 className="text-3xl md:text-5xl font-black text-white tracking-tight mb-4">
+                                Publica tu propiedad
+                            </h3>
+                            <p className="text-orange-50 text-lg md:text-xl font-medium leading-relaxed">
+                                Llega a más personas en minutos. Registra tu inmueble y conecta rápidamente con compradores calificados de forma segura.
+                            </p>
+                        </div>
+
+                        <div className="relative z-10 flex-shrink-0 w-full md:w-auto">
+                            <Link 
+                                to="/beneficios-vendedor"
+                                className="w-full md:w-auto flex items-center justify-center gap-3 bg-white text-orange-600 px-8 py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-gray-50 hover:scale-105 active:scale-95 transition-all shadow-xl text-xs md:text-sm"
+                            >
+                                Publicar Ahora
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+
+                {/* EXPLORAR POR CATEGORÍAS */}
+                <div className="mx-0 md:mx-auto w-full md:max-w-4xl mb-24 -mt-8 relative z-20 px-4">
+                    <h4 className="text-[10px] md:text-xs font-black text-gray-400 uppercase tracking-widest mb-6 md:text-center text-center">Explorar Inmuebles por Categoría</h4>
+                    
+                    <div className="flex flex-row items-start justify-between md:justify-center gap-2 md:gap-8 overflow-x-auto scrollbar-none pb-4 pt-4">
+                        <Link to="/terrenoVentas" className="flex flex-col items-center gap-2 transition-all hover:-translate-y-2 group flex-none">
+                            <div className="w-14 h-14 md:w-20 md:h-20 bg-white shadow-xl shadow-gray-200/50 rounded-full flex items-center justify-center group-hover:bg-orange-600 group-hover:shadow-orange-600/30 transition-all border border-gray-50">
+                                <span className="text-xl md:text-3xl transition-transform group-hover:scale-110">🏔️</span>
+                            </div>
+                            <span className="text-[9px] md:text-xs font-black text-gray-700 group-hover:text-orange-600 tracking-tight">Terrenos</span>
+                        </Link>
+                        
+                        <Link to="/terrenoVentas" className="flex flex-col items-center gap-2 transition-all hover:-translate-y-2 group flex-none">
+                            <div className="w-14 h-14 md:w-20 md:h-20 bg-white shadow-xl shadow-gray-200/50 rounded-full flex items-center justify-center group-hover:bg-orange-600 group-hover:shadow-orange-600/30 transition-all border border-gray-50">
+                                <span className="text-xl md:text-3xl transition-transform group-hover:scale-110">🏡</span>
+                            </div>
+                            <span className="text-[9px] md:text-xs font-black text-gray-700 group-hover:text-orange-600 tracking-tight">Fincas</span>
+                        </Link>
+                        
+                        <Link to="/terrenoVentas" className="flex flex-col items-center gap-2 transition-all hover:-translate-y-2 group flex-none">
+                            <div className="w-14 h-14 md:w-20 md:h-20 bg-white shadow-xl shadow-gray-200/50 rounded-full flex items-center justify-center group-hover:bg-orange-600 group-hover:shadow-orange-600/30 transition-all border border-gray-50">
+                                <span className="text-xl md:text-3xl transition-transform group-hover:scale-110">🏠</span>
+                            </div>
+                            <span className="text-[9px] md:text-xs font-black text-gray-700 group-hover:text-orange-600 tracking-tight">Casas</span>
+                        </Link>
+                        
+                        <Link to="/terrenoVentas" className="flex flex-col items-center gap-2 transition-all hover:-translate-y-2 group flex-none">
+                            <div className="w-14 h-14 md:w-20 md:h-20 bg-white shadow-xl shadow-gray-200/50 rounded-full flex items-center justify-center group-hover:bg-orange-600 group-hover:shadow-orange-600/30 transition-all border border-gray-50">
+                                <span className="text-xl md:text-3xl transition-transform group-hover:scale-110">🏗️</span>
+                            </div>
+                            <span className="text-[9px] md:text-xs font-black text-gray-700 group-hover:text-orange-600 tracking-tight">Proyectos</span>
+                        </Link>
+                        
+                        <Link to="/terrenoVentas" className="flex flex-col items-center gap-2 transition-all hover:-translate-y-2 group flex-none">
+                            <div className="w-14 h-14 md:w-20 md:h-20 bg-white shadow-xl shadow-gray-200/50 rounded-full flex items-center justify-center group-hover:bg-orange-600 group-hover:shadow-orange-600/30 transition-all border border-gray-50">
+                                <span className="text-xl md:text-3xl transition-transform group-hover:scale-110">🌲</span>
+                            </div>
+                            <span className="text-[9px] md:text-xs font-black text-gray-700 group-hover:text-orange-600 tracking-tight">Campestre</span>
+                        </Link>
+                    </div>
                 </div>
 
                 {/* PROMOCIONAL BANNERS */}
