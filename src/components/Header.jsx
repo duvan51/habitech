@@ -83,6 +83,7 @@ export default function Header({ config }) {
           <div className="hidden lg:flex gap-6 text-sm items-center">
             <Link to="/" className="text-white hover:text-orange-300 font-medium">Marketplace</Link>
             <Link to="/constructora" className="text-white hover:text-orange-300 font-medium">Constructora</Link>
+            <Link to="/portafolio" className="text-white hover:text-orange-300 font-medium">Portafolio</Link>
             <Link to="/nosotros" className="text-white hover:text-orange-300 font-medium">Nosotros</Link>
           </div>
 
@@ -161,6 +162,26 @@ export default function Header({ config }) {
               {showSettings && (
                 <div className="absolute right-0 mt-3 w-56 bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden z-[999] animate-in fade-in zoom-in duration-200">
                   <div className="p-4 space-y-4">
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Navegación</p>
+                    <div className="space-y-1">
+                      <Link 
+                        to="/portafolio" 
+                        onClick={() => setShowSettings(false)}
+                        className="w-full flex items-center gap-2 p-2.5 hover:bg-orange-50 rounded-2xl transition-colors group text-gray-700 hover:text-orange-600"
+                      >
+                        <span className="text-xs font-bold">💼 Portafolio & Cotizador</span>
+                      </Link>
+                      {(profile?.role === 'superadmin' || user?.email === 'duvanaponteramirez@gmail.com') && (
+                        <Link 
+                          to="/dashboard/superadmin" 
+                          onClick={() => setShowSettings(false)}
+                          className="w-full flex items-center gap-2 p-2.5 bg-orange-50 hover:bg-orange-100 rounded-2xl transition-colors group text-orange-700 font-extrabold"
+                        >
+                          <span className="text-xs">🔑 Panel Superadmin</span>
+                        </Link>
+                      )}
+                    </div>
+                    <div className="h-px bg-gray-100 mx-2"></div>
                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Configuración</p>
                     
                     <button 

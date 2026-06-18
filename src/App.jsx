@@ -32,6 +32,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import UserDashboard from "./pages/dashboard/UserDashboard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import SuperAdminDashboard from "./pages/dashboard/SuperAdminDashboard";
 import NotificationsPage from './pages/NotificationsPage';
 import MessagesPage from './pages/MessagesPage';
 import BeneficiosVendedor from "./pages/BeneficiosVendedor";
@@ -87,6 +88,11 @@ export default function App() {
           <Route path="/admin" element={
             <ProtectedRoute adminOnly>
               <AdminDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/dashboard/superadmin" element={
+            <ProtectedRoute>
+              <SuperAdminDashboard />
             </ProtectedRoute>
           } />
           <Route path="/notificaciones" element={
