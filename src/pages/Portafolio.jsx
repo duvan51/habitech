@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import useConfig from "../hooks/useConfig";
 import { useDataSdk } from "../hooks/useDataSdk";
 import { useAuth } from "../hooks/AuthContext";
@@ -117,6 +117,37 @@ export default function Portafolio() {
   const config = useConfig();
   const { createRecord } = useDataSdk();
   const { user, profile } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Helper functions to update URL parameters
+  const openReel = (id) => {
+    setSearchParams(prev => {
+      prev.set("reel", id);
+      return prev;
+    }, { replace: true });
+  };
+
+  const closeReel = () => {
+    setSearchParams(prev => {
+      prev.delete("reel");
+      return prev;
+    }, { replace: true });
+  };
+
+  const openProject = (id) => {
+    setSearchParams(prev => {
+      prev.set("project", id);
+      return prev;
+    }, { replace: true });
+  };
+
+  const closeProject = () => {
+    setSearchParams(prev => {
+      prev.delete("project");
+      prev.delete("obra");
+      return prev;
+    }, { replace: true });
+  };
 
   const isSuperAdmin = profile?.role === 'superadmin' || user?.email === 'duvanaponteramirez@gmail.com';
 
@@ -257,7 +288,7 @@ export default function Portafolio() {
         } else if (e.key === "ArrowUp") {
           handlePrevReelModal();
         } else if (e.key === "Escape") {
-          setActiveReelModalIndex(null);
+          closeReel();
         }
       }
     };
@@ -268,13 +299,13 @@ export default function Portafolio() {
 
   const handleNextReelModal = () => {
     if (activeReelModalIndex !== null && activeReelModalIndex < reels.length - 1) {
-      setActiveReelModalIndex(activeReelModalIndex + 1);
+      openReel(reels[activeReelModalIndex + 1].id);
     }
   };
 
   const handlePrevReelModal = () => {
     if (activeReelModalIndex !== null && activeReelModalIndex > 0) {
-      setActiveReelModalIndex(activeReelModalIndex - 1);
+      openReel(reels[activeReelModalIndex - 1].id);
     }
   };
 
@@ -359,8 +390,29 @@ export default function Portafolio() {
 
   // Copiar link y mostrar toast
   const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href);
+    navigator.clipboard.writeText("https://constructorahabitech.com/portafolio");
     setToastMessage("¡Enlace de portafolio copiado al portapapeles! 📋");
+    setTimeout(() => setToastMessage(""), 3000);
+  };
+
+  const handleShareReel = (reelId) => {
+    const shareUrl = `https://constructorahabitech.com/portafolio?reel=${reelId}`;
+    navigator.clipboard.writeText(shareUrl);
+    setToastMessage("¡Enlace del reel copiado! 📋");
+    setTimeout(() => setToastMessage(""), 3000);
+  };
+
+  const handleShareProject = (projectId) => {
+    const shareUrl = `https://constructorahabitech.com/portafolio?project=${projectId}`;
+    navigator.clipboard.writeText(shareUrl);
+    setToastMessage("¡Enlace de la obra copiado! 📋");
+    setTimeout(() => setToastMessage(""), 3000);
+  };
+
+  const handleShareHeroVideo = () => {
+    const shareUrl = `https://constructorahabitech.com/portafolio?video=hero`;
+    navigator.clipboard.writeText(shareUrl);
+    setToastMessage("¡Enlace del video principal copiado! 📋");
     setTimeout(() => setToastMessage(""), 3000);
   };
 
@@ -477,12 +529,73 @@ export default function Portafolio() {
     if (!calcResult) return "";
     const systemName = calcData.sistema === "prefabricado" ? "Prefabricado" : calcData.sistema === "liviano" ? "Liviano (Glampings/Alpinas)" : "Tradicional";
     const text = `Hola Habitech! 👋 Acabo de realizar una cotización en su web:\n\n*Proyecto:* Casa/Cabaña ${systemName}\n*Área:* ${calcData.area} m² aprox.\n*Ubicación:* ${calcData.ubicacion}\n*Rango Estimado:* COP $${calcResult.minCOP} - $${calcResult.maxCOP} (USD $${calcResult.minUSD} - $${calcResult.maxUSD})\n\n*Nombre:* ${calcData.nombre}\n*WhatsApp:* ${calcData.telefono}\n\nMe gustaría agendar una asesoría gratuita para revisar los planos y detalles del proyecto.`;
-    return `https://wa.me/573000000000?text=${encodeURIComponent(text)}`;
+    return `https://wa.me/573124147911?text=${encodeURIComponent(text)}`;
+  };
+
+  const getReelWhatsAppUrl = (reel) => {
+    if (!reel) return "";
+    const message = reel.whatsappMsg || `Hola Habitech! 👋 Vi el reel de la obra: "${reel.title}" (${reel.system}) y me gustaría recibir más información para cotizar.`;
+    return `https://wa.me/573124147911?text=${encodeURIComponent(message)}`;
+  };
+
+  const getProjectWhatsAppUrl = (proj) => {
+    if (!proj) return "";
+    const message = `Hola Habitech! 👋 Estaba revisando la galería de proyectos del portafolio y me gustó mucho el caso de éxito: "${proj.title}" en ${proj.location}. Quisiera recibir más planos, cotización y detalles de viabilidad en mi terreno.`;
+    return `https://wa.me/573124147911?text=${encodeURIComponent(message)}`;
   };
 
   // 3. Estados para Galería Filtrable
   const [filter, setFilter] = useState("todos");
   const [selectedProject, setSelectedProject] = useState(null);
+
+  // Sync URL parameters with Reel Modal State
+  useEffect(() => {
+    if (reels.length > 0) {
+      const reelId = searchParams.get("reel");
+      if (reelId) {
+        const idx = reels.findIndex(r => r.id === reelId);
+        if (idx !== -1) {
+          setActiveReelModalIndex(idx);
+        } else {
+          setActiveReelModalIndex(null);
+        }
+      } else {
+        setActiveReelModalIndex(null);
+      }
+    } else {
+      setActiveReelModalIndex(null);
+    }
+  }, [searchParams, reels]);
+
+  // Sync URL parameters with Project Modal State
+  useEffect(() => {
+    if (projects.length > 0) {
+      const projId = searchParams.get("project") || searchParams.get("obra");
+      if (projId) {
+        const proj = projects.find(p => String(p.id) === String(projId));
+        if (proj) {
+          setSelectedProject(proj);
+        } else {
+          setSelectedProject(null);
+        }
+      } else {
+        setSelectedProject(null);
+      }
+    } else {
+      setSelectedProject(null);
+    }
+  }, [searchParams, projects]);
+
+  // Sync URL parameters for Hero Video Scrolling
+  useEffect(() => {
+    const videoParam = searchParams.get("video");
+    if (videoParam === "hero" || videoParam === "main") {
+      const heroSection = document.getElementById("app-root")?.querySelector("section") || document.querySelector("section");
+      if (heroSection) {
+        heroSection.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, [searchParams]);
 
   const filteredProjects = filter === "todos"
     ? projects
@@ -645,6 +758,16 @@ export default function Portafolio() {
               />
 
               <button 
+                onClick={handleShareHeroVideo}
+                className="absolute top-4 right-14 z-20 bg-black/40 hover:bg-black/60 p-2.5 rounded-full text-white transition-all scale-95 hover:scale-100"
+                title="Compartir video principal"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M8.684 10.742l4.606-2.303m0 0a3 3 0 10-3.003-3.003m3.003 3.003a3 3 0 103.003 3.003m-3.003-3.003l-4.606 2.303m0 0a3 3 0 10-3.003 3.003" />
+                </svg>
+              </button>
+
+              <button 
                 onClick={() => setMutedGlobal(!mutedGlobal)}
                 className="absolute top-4 right-4 z-20 bg-black/40 hover:bg-black/60 p-2.5 rounded-full text-white transition-all scale-95 hover:scale-100"
               >
@@ -712,7 +835,7 @@ export default function Portafolio() {
             return (
               <div 
                 key={reel.id}
-                onClick={() => setActiveReelModalIndex(index)}
+                onClick={() => openReel(reel.id)}
                 className={`relative aspect-[9/16] rounded-3xl overflow-hidden shadow-xl border-4 transition-all duration-300 bg-[#122228] group cursor-pointer ${
                   isPlaying ? 'border-orange-500 ring-4 ring-orange-500/10 scale-102 shadow-orange-100' : 'border-white hover:border-gray-200'
                 }`}
@@ -759,7 +882,7 @@ export default function Portafolio() {
                   </p>
                   
                   <div className="flex items-center justify-between pt-3 border-t border-white/10" onClick={e => e.stopPropagation()}>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       <button 
                         onClick={() => handleLike(reel.id)}
                         className={`flex items-center gap-1 text-xs font-bold px-2.5 py-1.5 rounded-full transition-colors ${
@@ -769,10 +892,17 @@ export default function Portafolio() {
                         <span>{reel.hasLiked ? "❤️" : "🤍"}</span>
                         <span>{reel.likes}</span>
                       </button>
+                      <button 
+                        onClick={() => handleShareReel(reel.id)}
+                        className="flex items-center gap-1.5 text-xs font-bold px-2.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+                        title="Compartir reel"
+                      >
+                        <span>🔗</span>
+                      </button>
                     </div>
 
                     <a 
-                      href={`https://wa.me/573000000000?text=${encodeURIComponent(reel.whatsappMsg || '')}`}
+                      href={getReelWhatsAppUrl(reel)}
                       target="_blank"
                       rel="noreferrer"
                       className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold px-3 py-1.5 rounded-full flex items-center gap-1 active:scale-95 transition-transform"
@@ -795,7 +925,7 @@ export default function Portafolio() {
         >
           {/* BOTÓN CERRAR MODAL */}
           <button 
-            onClick={() => setActiveReelModalIndex(null)}
+            onClick={closeReel}
             className="absolute top-6 right-6 z-50 bg-[#172c34]/80 border border-white/10 hover:bg-[#ff6b00] text-white rounded-full w-12 h-12 flex items-center justify-center font-black transition-all hover:scale-105 active:scale-95 shadow-2xl text-lg"
             title="Cerrar reproductor"
           >
@@ -898,7 +1028,7 @@ export default function Portafolio() {
               {/* Botón WhatsApp de Acción Inmediata */}
               <div className="pt-2">
                 <a 
-                  href={`https://wa.me/573000000000?text=${encodeURIComponent(reels[activeReelModalIndex].whatsappMsg || '')}`}
+                  href={getReelWhatsAppUrl(reels[activeReelModalIndex])}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black uppercase tracking-wider px-5 py-3 rounded-xl shadow-lg transition-transform active:scale-95"
@@ -948,9 +1078,9 @@ export default function Portafolio() {
               {/* Botón Compartir */}
               <div className="flex flex-col items-center gap-1">
                 <button 
-                  onClick={handleShare}
+                  onClick={() => handleShareReel(reels[activeReelModalIndex].id)}
                   className="w-11 h-11 rounded-full flex items-center justify-center bg-black/50 text-white hover:bg-black/70 active:scale-90 transition-transform"
-                  title="Copiar enlace"
+                  title="Copiar enlace del reel"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M8.684 10.742l4.606-2.303m0 0a3 3 0 10-3.003-3.003m3.003 3.003a3 3 0 103.003 3.003m-3.003-3.003l-4.606 2.303m0 0a3 3 0 10-3.003 3.003" />
@@ -961,7 +1091,7 @@ export default function Portafolio() {
 
               {/* Direct WhatsApp CTA Button */}
               <a 
-                href={`https://wa.me/573000000000?text=${encodeURIComponent(reels[activeReelModalIndex].whatsappMsg || '')}`}
+                href={getReelWhatsAppUrl(reels[activeReelModalIndex])}
                 target="_blank"
                 rel="noreferrer"
                 className="w-11 h-11 rounded-full flex items-center justify-center bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 active:scale-90 transition-transform"
@@ -1503,7 +1633,7 @@ export default function Portafolio() {
             {filteredProjects.map(proj => (
               <div 
                 key={proj.id}
-                onClick={() => setSelectedProject(proj)}
+                onClick={() => openProject(proj.id)}
                 className="border border-gray-100 rounded-3xl overflow-hidden bg-[#fafbfc] cursor-pointer hover:shadow-xl hover:border-gray-200 transition-all flex flex-col justify-between group"
               >
                 <div>
@@ -1543,7 +1673,7 @@ export default function Portafolio() {
 
       {/* MODAL DETALLE DE PROYECTO */}
       {selectedProject && (
-        <div className="fixed inset-0 bg-black/70 flex justify-center items-center z-[9999] p-4 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setSelectedProject(null)}>
+        <div className="fixed inset-0 bg-black/70 flex justify-center items-center z-[9999] p-4 backdrop-blur-sm animate-in fade-in duration-200" onClick={closeProject}>
           <div className="bg-white rounded-3xl overflow-hidden max-w-2xl w-full shadow-2xl animate-in zoom-in-95 duration-200 border border-gray-100 flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
             <div className="aspect-[16/9] w-full relative bg-gray-100 flex-none">
               <img 
@@ -1551,12 +1681,22 @@ export default function Portafolio() {
                 alt={selectedProject.title} 
                 className="w-full h-full object-cover"
               />
-              <button 
-                onClick={() => setSelectedProject(null)}
-                className="absolute top-4 right-4 bg-black/60 hover:bg-black/80 text-white rounded-full p-2 text-xs font-black shadow-lg"
-              >
-                ✕ Cerrar
-              </button>
+              <div className="absolute top-4 right-4 flex gap-2 z-20">
+                <button 
+                  onClick={() => handleShareProject(selectedProject.id)}
+                  className="bg-black/60 hover:bg-black/80 text-white rounded-full px-3 py-2 text-xs font-black shadow-lg flex items-center gap-1.5 transition-all active:scale-95"
+                  title="Compartir esta obra"
+                >
+                  🔗 Compartir
+                </button>
+                <button 
+                  onClick={closeProject}
+                  className="bg-black/60 hover:bg-black/80 text-white rounded-full p-2 text-xs font-black shadow-lg transition-all active:scale-95"
+                  title="Cerrar reproductor"
+                >
+                  ✕ Cerrar
+                </button>
+              </div>
               <span className="absolute bottom-4 left-4 bg-orange-600 text-white text-xs font-extrabold uppercase px-4 py-1.5 rounded-full shadow-md">
                 Sistema {selectedProject.category}
               </span>
@@ -1595,9 +1735,7 @@ export default function Portafolio() {
 
               <div className="pt-2">
                 <a 
-                  href={`https://wa.me/573000000000?text=${encodeURIComponent(
-                    `Hola Habitech! 👋 Estaba revisando la galería de proyectos del portafolio y me gustó mucho el caso de éxito: "${selectedProject.title}" en ${selectedProject.location}. Quisiera recibir más planos, cotización y detalles de viabilidad en mi terreno.`
-                  )}`}
+                  href={getProjectWhatsAppUrl(selectedProject)}
                   target="_blank"
                   rel="noreferrer"
                   className="block text-center w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold uppercase text-xs py-4 rounded-xl transition-all shadow-md active:scale-95 flex items-center justify-center gap-2"

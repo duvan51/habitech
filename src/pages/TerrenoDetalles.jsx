@@ -525,7 +525,9 @@ export default function TerrenoDetalle() {
 
             <div className="space-y-4">
               <a
-                href={`https://wa.me/573000000000`}
+                href={`https://wa.me/573124147911?text=${encodeURIComponent(
+                  `Hola Habitech! 👋 Estoy interesado en la propiedad "${listing.title}" en ${listing.location} que vi en su web. Me gustaría recibir más información.`
+                )}`}
                 target="_blank"
                 rel="noreferrer"
                 className="flex items-center justify-center gap-3 w-full bg-green-600 text-white py-4 rounded-2xl font-black shadow-lg shadow-green-100 hover:bg-green-700 transition-all active:scale-95"
